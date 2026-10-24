@@ -1,5 +1,6 @@
 (()=>{
 const copy={
+contactWhatsApp:['Contact on WhatsApp','通过 WhatsApp 联系','Hubungi melalui WhatsApp','Liên hệ qua WhatsApp'],sampleContactOnly:['Sample contact details for this preview. No message is sent.','此预览使用示例联系方式，不会发送消息。','Butiran hubungan contoh untuk pratonton. Tiada mesej dihantar.','Thông tin liên hệ mẫu. Không gửi tin nhắn.'],
 originalAmount:['Original amount','原金额','Amaun asal','Số tiền gốc'],telegramUsername:['Telegram username','Telegram 用户名','Nama pengguna Telegram','Tên người dùng Telegram'],
 spendTotal:["Total spend", "总消费", "Jumlah belanja", "Tổng chi tiêu"],
 needsAttention:["Needs attention", "待处理", "Perlu perhatian", "Cần xử lý"],
