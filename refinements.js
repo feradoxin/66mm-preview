@@ -119,5 +119,5 @@ return {pendingCount,afterRender,view(page){
  if(b.dataset.action==='checkInvite'){checkInvite(document.getElementById('invite-token').value);return true;}
  if(b.dataset.action==='scanQr'){scanQr();return true;}
  return false;
-},input(el){if(el.id==='invite-token')s.inviteToken=el.value;},packagePerson(){return profile(selectedStaff);}};
+},input(el){if(el.id==='invite-token')s.inviteToken=el.value;},actionItems:()=>tasks.map(x=>({...x,resolved:!pending.has(x.id)})),resolveAction:id=>pending.delete(id),serviceContext:()=>({person:profile(selectedStaff),space:selectedSpace.id,minutes:ops.find(x=>x.id===selectedStaff)?.minutes||125}),packagePerson(){return profile(selectedStaff);}};
 };
