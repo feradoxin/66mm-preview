@@ -3,10 +3,10 @@ const root=document.getElementById('tbw06'),content=document.getElementById('tb-
 const locales={en:'English',zh:'简体中文',ms:'Bahasa Melayu',vi:'Tiếng Việt'};
 let saved='';try{saved=localStorage.getItem('66mm-preview-language')||'';}catch{}
 const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:'onboarding',page:'splash',venue:'venueA',selected:['Maya'],type:'ordinary',finance:'summary',tableFirst:true,requested:false,finalized:false,tallied:false,paid:false,released:false,freed:false,evidenceMode:'photo',image:'',imageName:'',reference:'',reading:false};
-const staffProfiles=[{id:'maya',name:'Maya',venue:'venueA'},{id:'lin',name:'Lin',venue:'venueA'},{id:'an',name:'An',venue:'venueA'}];
+const staffProfiles=[{id:'maya',name:'Maya',venue:'venueA'},{id:'lin',name:'Lin',venue:'venueA'},{id:'an',name:'An',venue:'venueA'},{id:'mei',name:'Mei',venue:'venueA'},{id:'sara',name:'Sara',venue:'venueA'},{id:'nhi',name:'Nhi',venue:'venueA'},{id:'lina',name:'Lina',venue:'venueA'}];
 let profileId='maya',profileReturn='browse',lightboxIndex=0,lightboxProfile=null,lightboxTrigger=null,scrollOverflow='';
 const lightbox=document.getElementById('staff-lightbox');
-const photoPath=(person,index)=>`assets/staff/${person.id}-${index+1}.webp`;
+const photoPath=(person,index)=>`assets/staff/${person.id}-${index+1}.webp?v=floor2`;
 function photoAlt(person,index){return `${person.name} · ${t('photo')} ${index+1}`;}
 const tabs={client:['explore','bookings','updates','account'],staff:['home','roster','finance','account'],manager:['floor','bookings','actions','manage'],admin:['overview','actions','payroll','manage']};
 const dest={client:['venues','bookings','updates','account'],staff:['staffHome','roster','finance','account'],manager:['floor','managerBookings','actions','managerManage'],admin:['overview','actions','payroll','adminManage']};
@@ -29,11 +29,12 @@ function persistLanguage(k){s.lang=k;s.chosen=true;try{localStorage.setItem('66m
 function renderControls(){controls.innerHTML=`<span class="demo-label">${t('preview')}</span><label>${t('language')}<select id="locale">${Object.entries(locales).map(([k,v])=>`<option value="${k}" ${k===s.lang?'selected':''}>${v}</option>`).join('')}</select></label><label>${t('role')}<select id="role">${['onboarding','client','staff','manager','admin'].map(k=>`<option value="${k}" ${s.role===k?'selected':''}>${t(k)}</option>`).join('')}</select></label>`;}
 function shell(title,body,back=''){
  backPage=back;
- header.innerHTML=`<div class="tb-head"><img class="brand" src="logo.webp" alt="66MM">${back?B('back',back,'tb-back'):''}<div class="tb-context">${s.role==='onboarding'?t('onboarding'):t(s.role)+' · '+(s.role==='admin'?t('company'):t(s.venue))}</div><h2>${title}</h2></div>`;
+ header.innerHTML=`<div class="tb-head">${s.role==='manager'?`<label class="compact-venue"><span class="sr-only">${t('venue')}</span><select id="venue" aria-label="${t('venue')}">${['venueA','venueB'].map(k=>`<option value="${k}" ${s.venue===k?'selected':''}>${t(k)}</option>`).join('')}</select></label>`:''}<img class="brand" src="logo.webp" alt="66MM">${back?B('back',back,'tb-back'):''}<div class="tb-context">${s.role==='onboarding'?t('onboarding'):t(s.role)+' · '+(s.role==='admin'?t('company'):t(s.venue))}</div><h2>${title}</h2></div>`;
  content.innerHTML=body+'<p id="error" class="tb-form-error" role="alert"></p>';
- nav.innerHTML=s.role==='onboarding'?'':tabs[s.role].map((k,i)=>`<button type="button" data-tab="${i}" ${i===activeTab?'aria-current="page"':''}><span class="tb-nav-mark" aria-hidden="true"></span><span>${t(k)}</span></button>`).join('');
+ nav.innerHTML=s.role==='onboarding'?'':tabs[s.role].map((k,i)=>`<button type="button" data-tab="${i}" ${i===activeTab?'aria-current="page"':''}><span class="tb-nav-mark" aria-hidden="true"></span><span>${t(k)}</span>${s.role==='manager'&&k==='actions'&&refinements.pendingCount()?`<span class="nav-count" aria-label="${refinements.pendingCount()} ${t('needAttention')}">${refinements.pendingCount()}</span>`:''}</button>`).join('');
  nav.setAttribute('aria-label',t('preview'));document.documentElement.lang=s.lang==='zh'?'zh-Hans':s.lang;document.title='66MM · '+t('preview');
  if(tg&&inTelegram){try{back?tg.BackButton.show():tg.BackButton.hide();}catch{}}
+ refinements.afterRender();
 }
 function go(p){
  if(lightbox.open)lightbox.close();
@@ -41,6 +42,9 @@ function go(p){
  const groups={client:[['venues','explore','types','browse','request','requestReview'],['bookings','bookingHistory','bookingDetail','bookingChange','changeSent'],['updates'],['account']],staff:[['staffHome','assignment','assignmentRequest','leaderboard'],['roster'],['finance','statement','document'],['account','profile','profilePending','leave','leaveForm','leavePending']],manager:[['floor','visit','freeVisit','reservedVisit','billing','serviceReview','freeReview','overrun','package','earlyEnd','price','priceReview'],['managerBookings','managerBooking','managerConfirm','packageReservation'],['actions'],['managerManage','funds','account','payoutReview','payoutConfirm','payoutResult']],admin:[['overview','venueOverview'],['actions'],['payroll','finalizeReview','tally','tallyReview','tallyRecorded','payout','payoutReview','payoutConfirm','payoutResult','uncertain'],['adminManage','account']]};
  const i=groups[s.role]?.findIndex(g=>g.includes(p));if(i>=0)activeTab=i;
  if(p==='staffProfile')activeTab=s.role==='client'?0:1;
+ if(['spaceDetail','opsStaffDetail'].includes(p))activeTab=0;
+ if(p==='actionDetail')activeTab=2;
+ if(p==='inviteIssuer')activeTab=3;
  render();window.scrollTo({top:0,behavior:'instant'});
 }
 function bookingCard(){return box('bookingDetail',badge(s.requested?'pending':'confirmed')+row('venue',t(s.venue))+row('staffLabel',s.selected.join(', '))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`)+B('viewBooking','bookingDetail'));}
@@ -51,6 +55,7 @@ function evidenceForm(){return `<h3>${t('evidence')}</h3><div class="tb-evidence
 function render(){
  renderControls();root.querySelector('.tb-phone').classList.toggle('is-splash',s.page==='splash');
  const p=s.page;
+ const refined=refinements.view(p);if(refined)return shell(refined.title,refined.body,refined.back);
  if(p==='splash'){backPage='';header.innerHTML='';nav.innerHTML='';content.innerHTML=`<div class="tb-splash is-playing"><div class="tb-logo-reveal">${logo}</div><div class="tb-loading-detail"><div class="tb-loader" aria-hidden="true"><span></span></div><div class="tb-splash-label" role="status">${t('loadingLabel')}</div></div></div>`;return;}
  if(p==='language')return shell(t('chooseLanguage'),`<div class="tb-language-logo">${logo}</div><div class="tb-stack">${Object.entries(locales).map(([k,v])=>`<button type="button" data-language="${k}" aria-pressed="${s.chosen&&s.lang===k}">${v}${s.chosen&&s.lang===k?' ✓':''}</button>`).join('')}</div><button class="tb-main" type="button" data-go="invite" ${s.chosen?'':'disabled'}>${t('continue')}</button>`+small('safePreview'));
  if(p==='invite')return shell(t('invitation'),box('invitationVerified',row('venue',t('venueA'))+row('telegramIdentity',t('exampleUser')))+note('clientEnrollment')+B('continue','enrolled','tb-main'),'language');
@@ -64,7 +69,7 @@ function render(){
   const person=staffProfiles.find(x=>x.id===profileId)||staffProfiles[0];
   return shell(person.name,`<button type="button" class="staff-profile-photo" data-photo="0" aria-label="${t('enlargePhoto')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701"><span>${t('enlargePhoto')}</span></button><h3 style="margin-top:22px">${t('photos')}</h3><div class="photo-reel" role="group" aria-label="${t('photos')}">${[0,1,2,3].map(i=>`<button type="button" data-photo="${i}" aria-label="${t('enlargePhoto')} · ${photoAlt(person,i)}"><img src="${photoPath(person,i)}" alt="${photoAlt(person,i)}" width="92" height="116" loading="lazy"></button>`).join('')}</div>`+box('publicProfile',row('nickname',person.name)+row('primaryVenue',t(person.venue))+row('availability',t('availabilityByTime')))+small('fictionalPhotos')+(s.role==='client'?`<button type="button" class="tb-full" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`+B('continue','request','tb-main'):''),profileReturn);
  }
- if(p==='request')return shell(t('request'),field('type',`<select id="booking-type" data-draft="type">${['ordinary','packageA','packageB'].map(k=>`<option value="${k}" ${s.type===k?'selected':''}>${t(k)}</option>`).join('')}</select>`)+fieldInput('preferredDate','date','2026-10-24')+fieldInput('preferredTime','time','22:00')+fieldInput('alternativeDate','date','2026-10-25')+fieldInput('alternativeTime','time','22:00')+area('notes','notes')+small('timezone')+B('reviewRequest','requestReview','tb-main'),'browse');
+ if(p==='request')return shell(t('request'),field('type',`<select id="booking-type" data-draft="type">${['ordinary','packageA','packageB'].map(k=>`<option value="${k}" ${s.type===k?'selected':''}>${t(k)}</option>`).join('')}</select>`)+fieldInput('preferredDate','date','2026-10-24')+fieldInput('preferredTime','time','22:00')+area('notes','notes')+small('timezone')+B('reviewRequest','requestReview','tb-main'),'browse');
  if(p==='requestReview')return shell(t('reviewRequest'),box('bookingDetail',row('venue',t(s.venue))+row('staffLabel',s.selected.join(', '))+row('type',t(s.type))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`))+note('pendingBooking')+A('submit','submitBooking'),'request');
  if(p==='bookings')return shell(t('bookings'),`<div class="tb-tabs">${B('upcoming','bookings')}${B('history','bookingHistory')}</div>`+bookingCard());
  if(p==='bookingHistory')return shell(t('history'),box('bookingDetail',badge('completed')+row('venue',t('venueA'))+row('staffLabel','Maya')+row('start','2026-10-17 · 22:00')),'bookings');
@@ -107,11 +112,11 @@ function render(){
  if(p==='price')return shell(t('priceAdjustment'),fieldInput('proposedAmount','number','')+area('reason','reason',true)+note('pricePending')+A('reviewProposal','priceReview'),'package');
  if(p==='priceReview')return shell(t('reviewProposal'),note('pricePending')+B('submit','result','tb-main'),'price');
  if(p==='actions')return shell(t('actions'),box('attention',small('overrun')+B('review','overrun'))+box('pendingApprovals',B('reviewProposal','placeholder')));
- if(p==='managerManage')return shell(t('manage'),`<div class="tb-stack">${['schedules','transfers','invitations','primaryPayroll'].map(k=>B(k,'placeholder')).join('')}${B('funds','funds')}${B('accountLanguage','account')}</div>`);
+ if(p==='managerManage')return shell(t('manage'),`<div class="tb-stack">${['schedules','transfers','primaryPayroll'].map(k=>B(k,'placeholder')).join('')}${B('inviteGuest','inviteIssuer')}${B('funds','funds')}${B('accountLanguage','account')}</div>`);
  if(p==='funds')return shell(t('funds'),box('custody',row('available',money(2000))+row('held',money(0)))+box('staffLabel',row('staffLabel','Maya')+row('remainder',money(850))+small('delegated')+B(s.paid?'view':'reviewPaidOut',s.paid?'payoutResult':'payoutReview')),'managerManage');
  if(p==='overview')return shell(t('company'),`<div class="tb-tabs">${B('company','overview')}${B('venueDashboards','venueOverview')}</div>`+box('operations',small('overrun')+B('openActions','actions'))+box('pendingApprovals',B('review','actions'))+B('openPayroll','payroll'));
  if(p==='venueOverview')return shell(t('venueDashboards'),box(s.venue,row('status',t('active'))+B('openActions','actions')),'overview');
- if(p==='adminManage')return shell(t('manage'),`<div class="tb-stack">${['accounts','venues','policies','reports','notifications'].map(k=>B(k,'placeholder')).join('')}${B('accountLanguage','account')}</div>`);
+ if(p==='adminManage')return shell(t('manage'),`<div class="tb-stack">${['accounts','venues','policies','reports','notifications'].map(k=>B(k,'placeholder')).join('')}${B('inviteGuest','inviteIssuer')}${B('accountLanguage','account')}</div>`);
  if(p==='payroll')return shell(t('payroll'),settlementTabs()+field('primaryVenue',`<select><option>${t('venueA')}</option><option>${t('venueB')}</option></select>`)+box('entitlement',badge(s.finalized?'finalized':'pending')+row('staffLabel','Maya')+row('fullEntitlement',money(1000))+small('sources')+B('reviewFinalization','finalizeReview')));
  if(p==='finalizeReview')return shell(t('reviewFinalization'),box('entitlement',row('staffLabel','Maya')+row('fullEntitlement',money(1000))+small('sources'))+A('confirmFinalization','finalize'),'payroll');
  if(p==='tally')return shell(t('payroll'),settlementTabs()+(s.finalized?box('tally',row('staffLabel','Maya')+row('entitlement',money(1000))+row('offset',money(150))+row('remainder',money(850))+B('reviewTally','tallyReview')):B('reviewFinalization','finalizeReview')));
@@ -128,6 +133,7 @@ function render(){
 function error(k){document.getElementById('error').textContent=t(k);}
 root.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b||b.disabled)return;
+ if(refinements.click(b))return;
  if(b.dataset.profile){profileId=b.dataset.profile;profileReturn=s.page;return go('staffProfile');}
  if(b.dataset.photo!==undefined)return openLightbox(Number(b.dataset.photo),b);
  if(b.dataset.language)return persistLanguage(b.dataset.language);
@@ -150,7 +156,7 @@ root.addEventListener('click',e=>{
  case 'pay':s.paid=true;return go('payoutResult');case 'replay':return splash();
  }
 });
-root.addEventListener('input',e=>{if(e.target.dataset.draft)s[e.target.dataset.draft]=e.target.value;});
+root.addEventListener('input',e=>{if(e.target.dataset.draft)s[e.target.dataset.draft]=e.target.value;refinements.input(e.target);});
 root.addEventListener('change',e=>{
  const el=e.target;
  if(el.dataset.draft)s[el.dataset.draft]=el.value;
@@ -207,6 +213,7 @@ lightboxImage.addEventListener('pointerup',e=>{
 });
 lightboxImage.addEventListener('pointercancel',()=>{swipeStart=null;});
 const tg=window.Telegram?.WebApp,inTelegram=!!tg?.initData;
+const refinements=createRefinements({s,t,B,A,row,box,note,small,field,esc,money,staffProfiles,photoPath,go,render});
 if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(lightbox.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
 splash();
 })();
