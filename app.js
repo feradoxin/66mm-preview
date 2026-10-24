@@ -3,6 +3,11 @@ const root=document.getElementById('tbw06'),content=document.getElementById('tb-
 const locales={en:'English',zh:'简体中文',ms:'Bahasa Melayu',vi:'Tiếng Việt'};
 let saved='';try{saved=localStorage.getItem('66mm-preview-language')||'';}catch{}
 const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:'onboarding',page:'splash',venue:'venueA',selected:['Maya'],type:'ordinary',finance:'summary',tableFirst:true,requested:false,finalized:false,tallied:false,paid:false,released:false,freed:false,evidenceMode:'photo',image:'',imageName:'',reference:'',reading:false};
+const staffProfiles=[{id:'maya',name:'Maya',venue:'venueA'},{id:'lin',name:'Lin',venue:'venueA'},{id:'an',name:'An',venue:'venueA'}];
+let profileId='maya',profileReturn='browse',lightboxIndex=0,lightboxProfile=null,lightboxTrigger=null,scrollOverflow='';
+const lightbox=document.getElementById('staff-lightbox');
+const photoPath=(person,index)=>`assets/staff/${person.id}-${index+1}.webp`;
+function photoAlt(person,index){return `${person.name} · ${t('photo')} ${index+1}`;}
 const tabs={client:['explore','bookings','updates','account'],staff:['home','roster','finance','account'],manager:['floor','bookings','actions','manage'],admin:['overview','actions','payroll','manage']};
 const dest={client:['venues','bookings','updates','account'],staff:['staffHome','roster','finance','account'],manager:['floor','managerBookings','actions','managerManage'],admin:['overview','actions','payroll','adminManage']};
 let activeTab=0,backPage='',timer,exitTimer,readId=0;
@@ -31,9 +36,11 @@ function shell(title,body,back=''){
  if(tg&&inTelegram){try{back?tg.BackButton.show():tg.BackButton.hide();}catch{}}
 }
 function go(p){
+ if(lightbox.open)lightbox.close();
  clearTimeout(timer);clearTimeout(exitTimer);s.page=p;
  const groups={client:[['venues','explore','types','browse','request','requestReview'],['bookings','bookingHistory','bookingDetail','bookingChange','changeSent'],['updates'],['account']],staff:[['staffHome','assignment','assignmentRequest','leaderboard'],['roster'],['finance','statement','document'],['account','profile','profilePending','leave','leaveForm','leavePending']],manager:[['floor','visit','freeVisit','reservedVisit','billing','serviceReview','freeReview','overrun','package','earlyEnd','price','priceReview'],['managerBookings','managerBooking','managerConfirm','packageReservation'],['actions'],['managerManage','funds','account','payoutReview','payoutConfirm','payoutResult']],admin:[['overview','venueOverview'],['actions'],['payroll','finalizeReview','tally','tallyReview','tallyRecorded','payout','payoutReview','payoutConfirm','payoutResult','uncertain'],['adminManage','account']]};
  const i=groups[s.role]?.findIndex(g=>g.includes(p));if(i>=0)activeTab=i;
+ if(p==='staffProfile')activeTab=s.role==='client'?0:1;
  render();window.scrollTo({top:0,behavior:'instant'});
 }
 function bookingCard(){return box('bookingDetail',badge(s.requested?'pending':'confirmed')+row('venue',t(s.venue))+row('staffLabel',s.selected.join(', '))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`)+B('viewBooking','bookingDetail'));}
@@ -52,7 +59,11 @@ function render(){
  if(p==='venues')return shell(t('chooseVenue'),['venueA','venueB'].map(k=>box(k,badge('active')+`<button type="button" class="tb-main" data-venue="${k}">${t('explore')}</button>`)).join(''));
  if(p==='explore')return shell(t(s.venue),box('plan',B('browse','browse','tb-main')+B('type','types')),'venues');
  if(p==='types')return shell(t('type'),`<div class="tb-stack">${['ordinary','packageA','packageB'].map(k=>`<button type="button" data-type="${k}">${t(k)}</button>`).join('')}</div>`,'explore');
- if(p==='browse'||p==='roster')return shell(t(p==='browse'?'chooseStaff':'roster'),['Maya','Lin','An'].map(n=>`<section class="tb-box"><h3 class="tb-person"><span class="tb-avatar">${n[0]}</span>${n}</h3>${row('primaryVenue',t('venueA'))}${p==='browse'?`<button type="button" class="tb-full" data-person="${n}" aria-pressed="${s.selected.includes(n)}">${t(s.selected.includes(n)?'selected':'select')}</button>`:badge('active')}</section>`).join('')+(p==='browse'?B('continue','request','tb-main'):''),p==='browse'?'explore':'');
+ if(p==='browse'||p==='roster')return shell(t(p==='browse'?'chooseStaff':'roster'),small('fictionalPhotos')+`<div class="staff-gallery">${staffProfiles.map(person=>`<article class="staff-card"><button type="button" class="staff-open" data-profile="${person.id}" aria-label="${t('viewProfile')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701" loading="lazy"><span class="staff-info"><span class="staff-name">${person.name}</span><span class="staff-venue">${t(person.venue)}</span></span></button>${p==='browse'?`<button type="button" class="staff-select" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`:''}</article>`).join('')}</div>`+(p==='browse'?B('continue','request','tb-main'):''),p==='browse'?'explore':'');
+ if(p==='staffProfile'){
+  const person=staffProfiles.find(x=>x.id===profileId)||staffProfiles[0];
+  return shell(person.name,`<button type="button" class="staff-profile-photo" data-photo="0" aria-label="${t('enlargePhoto')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701"><span>${t('enlargePhoto')}</span></button><h3 style="margin-top:22px">${t('photos')}</h3><div class="photo-reel" role="group" aria-label="${t('photos')}">${[0,1,2,3].map(i=>`<button type="button" data-photo="${i}" aria-label="${t('enlargePhoto')} · ${photoAlt(person,i)}"><img src="${photoPath(person,i)}" alt="${photoAlt(person,i)}" width="92" height="116" loading="lazy"></button>`).join('')}</div>`+box('publicProfile',row('nickname',person.name)+row('primaryVenue',t(person.venue))+row('availability',t('availabilityByTime')))+small('fictionalPhotos')+(s.role==='client'?`<button type="button" class="tb-full" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`+B('continue','request','tb-main'):''),profileReturn);
+ }
  if(p==='request')return shell(t('request'),field('type',`<select id="booking-type" data-draft="type">${['ordinary','packageA','packageB'].map(k=>`<option value="${k}" ${s.type===k?'selected':''}>${t(k)}</option>`).join('')}</select>`)+fieldInput('preferredDate','date','2026-10-24')+fieldInput('preferredTime','time','22:00')+fieldInput('alternativeDate','date','2026-10-25')+fieldInput('alternativeTime','time','22:00')+area('notes','notes')+small('timezone')+B('reviewRequest','requestReview','tb-main'),'browse');
  if(p==='requestReview')return shell(t('reviewRequest'),box('bookingDetail',row('venue',t(s.venue))+row('staffLabel',s.selected.join(', '))+row('type',t(s.type))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`))+note('pendingBooking')+A('submit','submitBooking'),'request');
  if(p==='bookings')return shell(t('bookings'),`<div class="tb-tabs">${B('upcoming','bookings')}${B('history','bookingHistory')}</div>`+bookingCard());
@@ -117,6 +128,8 @@ function render(){
 function error(k){document.getElementById('error').textContent=t(k);}
 root.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b||b.disabled)return;
+ if(b.dataset.profile){profileId=b.dataset.profile;profileReturn=s.page;return go('staffProfile');}
+ if(b.dataset.photo!==undefined)return openLightbox(Number(b.dataset.photo),b);
  if(b.dataset.language)return persistLanguage(b.dataset.language);
  if(b.dataset.tab!==undefined){activeTab=Number(b.dataset.tab);return go(dest[s.role][activeTab]);}
  if(b.dataset.venue){s.venue=b.dataset.venue;return go('explore');}
@@ -154,7 +167,46 @@ root.addEventListener('change',e=>{
  };reader.readAsDataURL(file);
 });
 function splash(){clearTimeout(timer);clearTimeout(exitTimer);s.page='splash';render();timer=setTimeout(()=>{root.querySelector('.tb-splash')?.classList.add('is-leaving');exitTimer=setTimeout(()=>go(s.chosen&&s.role!=='onboarding'?dest[s.role][0]:'language'),450);},2800);}
+function refreshLightbox(){
+ const img=document.getElementById('lightbox-image');
+ img.src=photoPath(lightboxProfile,lightboxIndex);img.alt=photoAlt(lightboxProfile,lightboxIndex);
+ document.getElementById('lightbox-title').textContent=lightboxProfile.name+' · '+t('photos');
+ document.getElementById('lightbox-count').textContent=`${lightboxIndex+1} / 4`;
+ document.getElementById('lightbox-close').textContent=t('closePhoto');
+ document.getElementById('lightbox-prev').textContent='‹ '+t('previousPhoto');
+ document.getElementById('lightbox-next').textContent=t('nextPhoto')+' ›';
+ document.getElementById('lightbox-help').textContent=t('swipePhotos');
+}
+function openLightbox(index,trigger){
+ lightboxProfile=staffProfiles.find(x=>x.id===profileId)||staffProfiles[0];lightboxIndex=index;lightboxTrigger=trigger;
+ refreshLightbox();scrollOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';
+ lightbox.showModal();document.getElementById('lightbox-close').focus();
+ if(tg&&inTelegram){try{tg.BackButton.show();}catch{}}
+}
+function cyclePhoto(delta){lightboxIndex=(lightboxIndex+delta+4)%4;refreshLightbox();}
+document.getElementById('lightbox-close').addEventListener('click',()=>lightbox.close());
+document.getElementById('lightbox-prev').addEventListener('click',()=>cyclePhoto(-1));
+document.getElementById('lightbox-next').addEventListener('click',()=>cyclePhoto(1));
+lightbox.addEventListener('click',e=>{if(e.target===lightbox||e.target.classList.contains('lightbox-stage'))lightbox.close();});
+lightbox.addEventListener('close',()=>{
+ document.documentElement.style.overflow=scrollOverflow;
+ if(lightboxTrigger?.isConnected)lightboxTrigger.focus();
+ if(tg&&inTelegram){try{backPage?tg.BackButton.show():tg.BackButton.hide();}catch{}}
+});
+lightbox.addEventListener('keydown',e=>{
+ if(e.key==='ArrowLeft'){e.preventDefault();cyclePhoto(-1);}
+ if(e.key==='ArrowRight'){e.preventDefault();cyclePhoto(1);}
+});
+let swipeStart=null;
+const lightboxImage=document.getElementById('lightbox-image');
+lightboxImage.addEventListener('pointerdown',e=>{if(!e.isPrimary)return;swipeStart={x:e.clientX,y:e.clientY,id:e.pointerId};lightboxImage.setPointerCapture(e.pointerId);});
+lightboxImage.addEventListener('pointerup',e=>{
+ if(!swipeStart||swipeStart.id!==e.pointerId)return;
+ const dx=e.clientX-swipeStart.x,dy=e.clientY-swipeStart.y;swipeStart=null;
+ if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.5)cyclePhoto(dx<0?1:-1);
+});
+lightboxImage.addEventListener('pointercancel',()=>{swipeStart=null;});
 const tg=window.Telegram?.WebApp,inTelegram=!!tg?.initData;
-if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(backPage)go(backPage);});}catch{}}
+if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(lightbox.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
 splash();
 })();
