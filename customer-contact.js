@@ -1,0 +1,65 @@
+/* UI-only customer contact policy. No account, booking or contact API is called. */
+window.createCustomerContact=({s,t,B,A,row,box,note,small,field,esc,go,render})=>{
+ let wechat='',draft='',selectedId='example-1',returnPage='account',toastTimer,toastKey='',toastAdd=false,bookingTab='upcoming',nextBookingId=2;
+ const records=[{id:'example-1',type:'ordinary',status:'confirmed',staff:'Maya, Lin',date:'2026-10-24',time:'22:00',change:''},{id:'history-1',type:'ordinary',status:'completed',staff:'Maya',date:'2026-10-17',time:'22:00',change:''}];
+ const terminal=new Set(['cancelled','completed']);
+ const current=()=>records.find(x=>x.id===selectedId)||records[0];
+ const openRecords=()=>records.filter(x=>!terminal.has(x.status));
+ const pendingRecords=()=>records.filter(x=>!terminal.has(x.status)&&(x.status==='pending'||x.change||x.help));
+ const hasWechat=()=>!!wechat.trim();
+ const view=(title,body,back='')=>({title:t(title),body,back});
+ function hideToast(){clearTimeout(toastTimer);document.getElementById('contact-toast').hidden=true;}
+ function paintToast(){const el=document.getElementById('contact-toast'),key=toastKey,add=toastAdd;if(!key)return;el.innerHTML=`<div><strong>${t(key)}</strong>${add?A('addWechat','toastAddWechat','toast-action'):''}</div><button type="button" data-action="dismissToast" aria-label="${t('dismissMessage')}">×</button>`;}
+ function toast(key,add=false){toastKey=key;toastAdd=add;clearTimeout(toastTimer);paintToast();document.getElementById('contact-toast').hidden=false;toastTimer=setTimeout(hideToast,10000);}
+ function afterRender(){if(!document.getElementById('contact-toast').hidden)paintToast();}
+ function requireWechat(){if(hasWechat())return false;toast('wechatRequired',true);return true;}
+ function beforeGo(page){if(s.role==='client'&&page==='bookingHistory'){bookingTab='history';go('bookings');return true;}return s.role==='client'&&['request','requestReview','bookingChange','changeSent','customerConflict'].includes(page)&&requireWechat();}
+ function contactForm(onboarding){return view(onboarding?'wechatOnboardingTitle':'wechatContact',note(onboarding||!hasWechat()?'wechatWhy':'wechatEditHelp')+field('wechatId',`<input id="wechat-id" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64" value="${esc(draft)}" placeholder="${t('wechatPlaceholder')}">`)+(onboarding?A('saveContinue','saveWechatOnboarding')+A('skipForNow','skipWechat','tb-full'):A('saveWechat','saveWechat')+(hasWechat()?A('removeWechat','removeWechat','tb-full'):'')+small('removeWechatRule'))+small('contactLocal'),onboarding?'inviteVerified':'account');}
+ function details(x,manager=false){return row('type',t(x.type))+row('status',t(x.status))+row('staffLabel',esc(x.staff))+row('start',esc(x.date+' · '+x.time))+(x.proposed?row('requestedStart',esc(x.proposed.date+' · '+x.proposed.time)):'')+(x.help?row('request',t('customerHelpPending')):'')+(x.change?row('request',t(x.change==='cancel'?'cancelAwaiting':'changeAwaiting')):'');}
+ function recordCard(x,manager=false){return box('bookingDetail',details(x,manager)+`<button type="button" class="tb-full" data-customer-booking="${x.id}" ${manager?'data-manager-booking="true"':''}>${t('viewBooking')}</button>`);}
+ 
+ function bookingPanel(){return (bookingTab==='upcoming'?openRecords():records.filter(x=>terminal.has(x.status))).map(x=>recordCard(x)).join('')||note(bookingTab==='upcoming'?'noOpenBookings':'noBookingHistory');}
+ function bookingsView(){return view('bookings',`<div class="tb-tabs raised-tabs" role="tablist" aria-label="${t('bookings')}">${['upcoming','history'].map(key=>`<button type="button" role="tab" id="booking-tab-${key}" data-booking-tab="${key}" aria-selected="${bookingTab===key}" aria-controls="booking-panel" tabindex="${bookingTab===key?0:-1}">${t(key)}</button>`).join('')}</div><div id="booking-panel" role="tabpanel" tabindex="0" aria-labelledby="booking-tab-${bookingTab}">${bookingPanel()}</div>`);}
+ function switchBookingTab(key){if(!['upcoming','history'].includes(key)||key===bookingTab)return;bookingTab=key;document.querySelectorAll('[data-booking-tab]').forEach(button=>{const active=button.dataset.bookingTab===key;button.setAttribute('aria-selected',String(active));button.setAttribute('tabindex',active?'0':'-1');});const panel=document.getElementById('booking-panel');panel.innerHTML=bookingPanel();panel.setAttribute('aria-labelledby','booking-tab-'+key);window.animatePreviewPanel?.(panel);}
+
+ function canRemove(){if(openRecords().length){toast('wechatRemoveBlocked');return false;}return true;}
+ function save(onboarding){const value=draft.trim();if(!value){if(onboarding)return toast('wechatEnterOrSkip');if(hasWechat()&&!canRemove())return;wechat='';go('account');toast('wechatRemoved');return;}if(!/^[A-Za-z][A-Za-z0-9_-]{5,19}$/.test(value))return toast('wechatInvalid');wechat=value;go(onboarding?'enrolled':'account');toast('wechatSaved');}
+ function managerPanel(page,body=''){if(s.role!=='manager')return '';if(page==='actions')return pendingRecords().length?box('customerFollowUp',pendingRecords().map(x=>recordCard(x,true)).join('')):'';const pages=['managerBooking','managerConfirm','packageReservation','package','overrun','visit','reservedVisit','billing','serviceReview'];if(page==='spaceDetail'){if(!body.includes('data-current-space-status=')||body.includes('data-current-space-status="free"'))return '';}else if(!pages.includes(page))return '';return `<section class="tb-box customer-contact-card"><span class="section-kicker">${t('client')}</span><h3>${t('exampleCustomer')}</h3><button type="button" class="tb-full" data-action="contactCustomer">${t('contactWechat')}</button></section>`;}
+ async function copyId(){const value=wechat;if(!value){toast('noWechatManager');return;}try{await navigator.clipboard.writeText(value);toast('wechatCopied');}catch{toast('wechatCopyFailed');document.getElementById('contact-id')?.select();}}
+ return {afterRender,pendingCount:()=>pendingRecords().length,beforeGo,managerPanel,hasWechat,openRecords,view(page){
+  if(['wechatOnboarding','wechatEdit'].includes(page))return contactForm(page==='wechatOnboarding');
+  if(page==='account'&&s.role==='client')return view('account',box('yourAccount',row('role',t('client'))+row('status',t('active')))+box('wechatContact',row('wechatId',hasWechat()?esc(wechat):t('notProvided'))+B(hasWechat()?'editWechat':'addWechat','wechatEdit'))+(!hasWechat()?note('wechatWhy'):'')+field('language',`<select id="account-locale">${Object.entries({en:'English',zh:'简体中文',ms:'Bahasa Melayu',vi:'Tiếng Việt'}).map(([k,v])=>`<option value="${k}" ${k===s.lang?'selected':''}>${v}</option>`).join('')}</select>`)+A('replay','replay','tb-full'));
+  if(s.role==='client'&&page==='bookings')return bookingsView();
+  if(s.role==='client'&&page==='bookingDetail'){const x=current();return view('bookingDetail',box('bookingDetail',details(x))+(terminal.has(x.status)?'':note(x.change?'pendingChange':'bookingContactHelp')+B('requestChange','bookingChange')+B('resolveConflict','customerConflict')),'bookings');}
+  if(s.role==='client'&&page==='bookingChange')return view('requestChange',field('request',`<select id="customer-change"><option value="change">${t('change')}</option><option value="cancel">${t('cancelBooking')}</option></select>`)+field('newDate',`<input id="customer-new-date" type="date" value="${esc(current().date)}">`)+field('newTime',`<input id="customer-new-time" type="time" value="${esc(current().time)}">`)+note('pendingChange')+A('sendRequest','sendCustomerChange'),'bookingDetail');
+  if(s.role==='client'&&page==='customerConflict')return view('resolveConflict',note('conflictHelp')+A('sendRequest','sendCustomerConflict'),'bookingDetail');
+  if(page==='customerContact'&&s.role==='manager')return view('contactWechat',box('client',row('nickname',t('exampleCustomer')))+(hasWechat()?field('wechatId',`<input id="contact-id" readonly value="${esc(wechat)}">`)+A('copyWechat','copyCustomerWechat')+note('wechatLinkLimit'):note('noWechatManager'))+small('contactLocal'),returnPage);
+  if(page==='managerBooking'&&s.role==='manager'){const x=current();return view('reviewRequest',box('bookingDetail',details(x,true))+(terminal.has(x.status)?'':x.change==='cancel'?A('approveCancellation','approveCustomerCancel'):x.change==='change'?A('approveChange','approveCustomerChange'):x.status==='pending'?A('confirmBooking','confirmCustomerBooking'):A('markBookingComplete','completeCustomerBooking'))+(x.help?A('resolveCustomerHelp','resolveCustomerHelp'):'')+small('demoReviewOnly'),'managerBookings');}
+  if(s.role==='manager'&&['managerBookings','bookingChronology'].includes(page))return view('bookings',`<div class="tb-tabs">${B('calendar','managerBookings')}${B('chronology','bookingChronology')}</div>`+records.map(x=>recordCard(x,true)).join('')+B('packageReservation','packageReservation'));
+  return null;
+ },click(b){
+  if(b.dataset.bookingTab){switchBookingTab(b.dataset.bookingTab);return true;}
+  if(b.dataset.customerBooking){selectedId=b.dataset.customerBooking;go(b.dataset.managerBooking?'managerBooking':'bookingDetail');return true;}
+  switch(b.dataset.action){
+   case 'dismissToast':hideToast();return true;
+   case 'toastAddWechat':hideToast();draft=wechat;go('wechatEdit');document.getElementById('wechat-id')?.focus();return true;
+   case 'saveWechatOnboarding':save(true);return true;
+   case 'saveWechat':save(false);return true;
+   case 'skipWechat':if(hasWechat()&&!canRemove())return true;wechat='';draft='';go('enrolled');return true;
+   case 'removeWechat':if(canRemove()){wechat='';draft='';go('account');toast('wechatRemoved');}return true;
+   case 'submitBooking':if(requireWechat())return true;const id='example-'+nextBookingId++;records.push({id,type:s.type,status:'pending',staff:s.selected.join(', '),date:s.preferredDate||'2026-10-24',time:s.preferredTime||'22:00',change:''});selectedId=id;s.requested=true;go('bookingDetail');return true;
+   case 'sendCustomerChange':if(requireWechat())return true;current().change=document.getElementById('customer-change').value==='cancel'?'cancel':'change';current().proposed=current().change==='change'?{date:document.getElementById('customer-new-date').value||current().date,time:document.getElementById('customer-new-time').value||current().time}:null;go('bookingDetail');toast('changeRequestSent');return true;
+   case 'sendCustomerConflict':if(requireWechat())return true;current().help=true;go('bookingDetail');toast('conflictRequestSent');return true;
+   case 'contactCustomer':returnPage=s.page;go('customerContact');if(hasWechat())copyId();return true;
+   case 'copyCustomerWechat':copyId();return true;
+   case 'approveCustomerCancel':current().status='cancelled';current().change='';current().help=false;current().proposed=null;go('managerBooking');return true;
+   case 'completeCustomerBooking':current().status='completed';current().change='';current().help=false;current().proposed=null;go('managerBooking');return true;
+   case 'confirmCustomerBooking':current().status='confirmed';go('managerBooking');return true;
+   case 'resolveCustomerHelp':current().help=false;go('managerBooking');return true;
+   case 'approveCustomerChange':if(current().proposed)Object.assign(current(),current().proposed);current().proposed=null;current().change='';go('managerBooking');return true;
+  }
+  if(b.dataset.go==='wechatEdit'){draft=wechat;}
+  if(b.dataset.go==='wechatOnboarding'){draft=wechat;}
+  return false;
+ },input(el){if(el.id==='wechat-id')draft=el.value;}};
+};

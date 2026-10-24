@@ -2,9 +2,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const nodes=new Map(),handlers=new Map(),storage=new Map();
 function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',style:{},open:false,classList:{toggle(){},add(){},remove(){}},setAttribute(){},addEventListener(type,fn){const k=id+':'+type;handlers.set(k,[...(handlers.get(k)||[]),fn]);},querySelector:el});return nodes.get(id);}
 const ctx={Intl,console,TextEncoder,crypto:webcrypto,navigator:{},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},scrollTo(){},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},document:{getElementById:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{lang:'',style:{}}}};ctx.window=ctx;vm.createContext(ctx);
-for(const file of ['locales.js','refinements-locales.js','invite-demo.js','vendor/qrcode.js','refinements.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
-vm.runInContext(fs.readFileSync('app.js','utf8').replace('splash();\n})();','globalThis.verify={s,go,refinements};\n})();'),ctx);
-const {s,go,refinements}=ctx.verify;
+for(const file of ['locales.js','refinements-locales.js','customer-locales.js','customer-contact.js','invite-demo.js','vendor/qrcode.js','refinements.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
+vm.runInContext(fs.readFileSync('app.js','utf8').replace('splash();\n})();','globalThis.verify={s,go,refinements,customer};\n})();'),ctx);
+const {s,go,refinements,customer}=ctx.verify;
 const button=data=>({dataset:data,hasAttribute(){return false}});
 (async()=>{
 const now=20000*100+19999;
@@ -22,7 +22,7 @@ for(const lang of ['en','zh','ms','vi']){
  refinements.click(button({space:'T04'}));assert(el('tb-content').innerHTML.includes('Maya'));assert(el('tb-content').innerHTML.includes('20:00'));assert(el('tb-content').innerHTML.includes('22:00'));
  refinements.click(button({opsStaff:'sara'}));assert(el('tb-content').innerHTML.includes(ctx.COPY[lang].medicalToday));
  refinements.click(button({packageStaff:'nhi'}));assert(el('tb-content').innerHTML.includes('Nhi'));assert(el('tb-content').innerHTML.includes(ctx.COPY[lang].packageB));
- s.role='client';go('request');assert(!el('tb-content').innerHTML.includes('alternativeDate'));assert(!el('tb-content').innerHTML.includes('alternativeTime'));
+ s.role='client';customer.input({id:'wechat-id',value:'demo_customer'});customer.click(button({action:'saveWechat'}));go('request');assert(!el('tb-content').innerHTML.includes('alternativeDate'));assert(!el('tb-content').innerHTML.includes('alternativeTime'));
  for(const role of ['manager','admin']){s.role=role;go(role==='manager'?'managerManage':'adminManage');assert(el('tb-content').innerHTML.includes('inviteIssuer'));}
 }
 s.role='manager';s.lang='en';go('actions');const before=refinements.pendingCount();refinements.click(button({task:'booking'}));refinements.click(button({action:'resolveTask'}));assert.equal(refinements.pendingCount(),before-1);assert(el('tb-nav').innerHTML.includes('nav-count'));

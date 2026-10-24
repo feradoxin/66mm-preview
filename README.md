@@ -31,3 +31,15 @@ GitHub Pages serves the static files from the root of `main`. Preserve `.nojekyl
 ## Validation
 
 Run `node tests/gallery.cjs` and `node tests/refinements.cjs`. Browser QA should cover Client and Staff galleries, profile return paths, four locales, modal navigation/closure, floor lists, QR acceptance/reuse and actual Telegram Android/iOS swiping/camera behavior. Camera evidence remains a local preview and business operations remain simulated.
+
+## Continuing design / customer contact (24 October 2026)
+
+New threads must read [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md). It records the owner's complete approved WeChat lockout list and, especially, the requirement to cancel or complete every open booking/reservation/package/service before deleting the WeChat ID. Pending cancellation does not unlock removal. This guard must later be checked and enforced atomically by the backend; this repository implements only the simulated UI.
+
+Onboarding now asks for an optional WeChat ID after invitation verification. Skip keeps browsing available; protected customer actions show an Add WeChat ID toast. Account → WeChat contact permits adding/editing; removal/blank-save is blocked by any open example record. Manager → Bookings can approve the demo cancellation or mark a confirmed example completed so removal can be reviewed. Contact details are held only in page memory, never sent to an API, and reset on reload. All role labels now use Customer / Boss and their four-locale equivalents; internal role keys remain unchanged. Customer notes fields have been removed; required manager financial reasons remain.
+
+Manager detail screens offer Contact on WeChat and a copy-ID fallback. An officially supported target-specific personal chat link could not be verified. This preview does not promise, attempt or report a successful external WeChat conversation launch. See the handoff's explicit platform limitation before changing this.
+
+Additional validation: `node tests/customer-contact.cjs` covers four-locale onboarding/skip, contact gates, submission guards, toast/focus, removal/blank-save, pending cancellation, multiple open bookings/packages, manager review/completion, contact entry points, notes removal and terminology.
+
+Customer Bookings → Upcoming / History now switches the list in place, retaining the header and tab controls. It shares the manager Floor tab styling and 180ms content transition, with reduced-motion support and arrow/Home/End keyboard navigation.
