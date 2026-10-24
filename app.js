@@ -6,7 +6,7 @@ const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:'onboarding
 const staffProfiles=[{id:'maya',name:'Maya',venue:'venueA'},{id:'lin',name:'Lin',venue:'venueA'},{id:'an',name:'An',venue:'venueA'},{id:'mei',name:'Mei',venue:'venueA'},{id:'sara',name:'Sara',venue:'venueA'},{id:'nhi',name:'Nhi',venue:'venueA'},{id:'lina',name:'Lina',venue:'venueA'}];
 let profileId='maya',profileReturn='browse',lightboxIndex=0,lightboxProfile=null,lightboxTrigger=null,scrollOverflow='';
 const lightbox=document.getElementById('staff-lightbox');
-const photoPath=(person,index)=>`assets/staff/${person.id}-${index+1}.webp?v=contact3`;
+const photoPath=(person,index)=>`assets/staff/${person.id}-${index+1}.webp?v=experience4`;
 function photoAlt(person,index){return `${person.name} · ${t('photo')} ${index+1}`;}
 const tabs={client:['explore','bookings','updates','account'],staff:['home','roster','finance','account'],manager:['floor','bookings','actions','manage'],admin:['overview','actions','payroll','manage']};
 const dest={client:['venues','bookings','updates','account'],staff:['staffHome','roster','finance','account'],manager:['floor','managerBookings','actions','managerManage'],admin:['overview','actions','payroll','adminManage']};
@@ -29,12 +29,12 @@ function persistLanguage(k){s.lang=k;s.chosen=true;try{localStorage.setItem('66m
 function renderControls(){controls.innerHTML=`<span class="demo-label">${t('preview')}</span><label>${t('language')}<select id="locale">${Object.entries(locales).map(([k,v])=>`<option value="${k}" ${k===s.lang?'selected':''}>${v}</option>`).join('')}</select></label><label>${t('role')}<select id="role">${['onboarding','client','staff','manager','admin'].map(k=>`<option value="${k}" ${s.role===k?'selected':''}>${t(k)}</option>`).join('')}</select></label>`;}
 function shell(title,body,back=''){
  backPage=back;
- header.innerHTML=`<div class="tb-head">${s.role==='manager'?`<label class="compact-venue"><span class="sr-only">${t('venue')}</span><select id="venue" aria-label="${t('venue')}">${['venueA','venueB'].map(k=>`<option value="${k}" ${s.venue===k?'selected':''}>${t(k)}</option>`).join('')}</select></label>`:''}<img class="brand" src="logo.webp" alt="66MM">${back?B('back',back,'tb-back'):''}<div class="tb-context">${s.role==='onboarding'?t('onboarding'):t(s.role)+' · '+(s.role==='admin'?t('company'):t(s.venue))}</div><h2>${title}</h2></div>`;
- content.innerHTML=body+customer.managerPanel(s.page,body)+'<p id="error" class="tb-form-error" role="alert"></p>';
- nav.innerHTML=s.role==='onboarding'?'':tabs[s.role].map((k,i)=>`<button type="button" data-tab="${i}" ${i===activeTab?'aria-current="page"':''}><span class="tb-nav-mark" aria-hidden="true"></span><span>${t(k)}</span>${s.role==='manager'&&k==='actions'&&(refinements.pendingCount()+customer.pendingCount())?`<span class="nav-count" aria-label="${(refinements.pendingCount()+customer.pendingCount())} ${t('needAttention')}">${(refinements.pendingCount()+customer.pendingCount())}</span>`:''}</button>`).join('');
+ header.innerHTML=experience.header(title,back);
+ content.innerHTML=body+customer.managerPanel(s.page,body)+experience.managerTasks(s.page);
+ nav.innerHTML=s.role==='onboarding'?'':tabs[s.role].map((k,i)=>`<button type="button" data-tab="${i}" ${i===activeTab?'aria-current="page"':''}>${experience.navIcon(k)}<span>${t(k)}</span>${s.role==='manager'&&k==='actions'&&(refinements.pendingCount()+customer.pendingCount()+experience.pendingCount())?`<span class="nav-count" aria-label="${refinements.pendingCount()+customer.pendingCount()+experience.pendingCount()} ${t('needAttention')}">${refinements.pendingCount()+customer.pendingCount()+experience.pendingCount()}</span>`:s.role==='client'&&k==='updates'&&experience.unreadCount()?`<span class="nav-count" aria-label="${experience.unreadCount()} ${t('unread')}">${experience.unreadCount()}</span>`:''}</button>`).join('');
  nav.setAttribute('aria-label',t('preview'));document.documentElement.lang=s.lang==='zh'?'zh-Hans':s.lang;document.title='66MM · '+t('preview');
  if(tg&&inTelegram){try{back?tg.BackButton.show():tg.BackButton.hide();}catch{}}
- refinements.afterRender();customer.afterRender();
+ refinements.afterRender();customer.afterRender();experience.afterRender();
 }
 function go(p){
  if(customer.beforeGo(p))return;
@@ -56,6 +56,7 @@ function evidenceForm(){return `<h3>${t('evidence')}</h3><div class="tb-evidence
 function render(){
  renderControls();root.querySelector('.tb-phone').classList.toggle('is-splash',s.page==='splash');
  const p=s.page;
+ const experienceView=experience.view(p);if(experienceView)return shell(experienceView.title,experienceView.body,experienceView.back);
  const customerView=customer.view(p);if(customerView)return shell(customerView.title,customerView.body,customerView.back);
  const refined=refinements.view(p);if(refined)return shell(refined.title,refined.body,refined.back);
  if(p==='splash'){backPage='';header.innerHTML='';nav.innerHTML='';content.innerHTML=`<div class="tb-splash is-playing"><div class="tb-logo-reveal">${logo}</div><div class="tb-loading-detail"><div class="tb-loader" aria-hidden="true"><span></span></div><div class="tb-splash-label" role="status">${t('loadingLabel')}</div></div></div>`;return;}
@@ -66,10 +67,10 @@ function render(){
  if(p==='venues')return shell(t('chooseVenue'),['venueA','venueB'].map(k=>box(k,badge('active')+`<button type="button" class="tb-main" data-venue="${k}">${t('explore')}</button>`)).join(''));
  if(p==='explore')return shell(t(s.venue),box('plan',B('browse','browse','tb-main')+B('type','types')),'venues');
  if(p==='types')return shell(t('type'),`<div class="tb-stack">${['ordinary','packageA','packageB'].map(k=>`<button type="button" data-type="${k}">${t(k)}</button>`).join('')}</div>`,'explore');
- if(p==='browse'||p==='roster')return shell(t(p==='browse'?'chooseStaff':'roster'),small('fictionalPhotos')+`<div class="staff-gallery">${staffProfiles.map(person=>`<article class="staff-card"><button type="button" class="staff-open" data-profile="${person.id}" aria-label="${t('viewProfile')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701" loading="lazy"><span class="staff-info"><span class="staff-name">${person.name}</span><span class="staff-venue">${t(person.venue)}</span></span></button>${p==='browse'?`<button type="button" class="staff-select" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`:''}</article>`).join('')}</div>`+(p==='browse'?B('continue','request','tb-main'):''),p==='browse'?'explore':'');
+ if(p==='browse'||p==='roster')return shell(t(p==='browse'?'chooseStaff':'roster'),small('fictionalPhotos')+`<div class="staff-gallery">${staffProfiles.map(person=>`<article class="staff-card"><button type="button" class="staff-open" data-profile="${person.id}" aria-label="${t('viewProfile')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701" loading="lazy"><span class="staff-info"><span class="staff-name">${person.name}</span><span class="staff-venue">${t(person.venue)}</span></span></button>${p==='browse'?`<button type="button" class="staff-select" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`:''}</article>`).join('')}</div>`+(p==='browse'?experience.galleryFooter():''),p==='browse'?'explore':'');
  if(p==='staffProfile'){
   const person=staffProfiles.find(x=>x.id===profileId)||staffProfiles[0];
-  return shell(person.name,`<button type="button" class="staff-profile-photo" data-photo="0" aria-label="${t('enlargePhoto')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701"><span>${t('enlargePhoto')}</span></button><h3 style="margin-top:22px">${t('photos')}</h3><div class="photo-reel" role="group" aria-label="${t('photos')}">${[0,1,2,3].map(i=>`<button type="button" data-photo="${i}" aria-label="${t('enlargePhoto')} · ${photoAlt(person,i)}"><img src="${photoPath(person,i)}" alt="${photoAlt(person,i)}" width="92" height="116" loading="lazy"></button>`).join('')}</div>`+box('publicProfile',row('nickname',person.name)+row('primaryVenue',t(person.venue))+row('availability',t('availabilityByTime')))+small('fictionalPhotos')+(s.role==='client'?`<button type="button" class="tb-full" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`+B('continue','request','tb-main'):''),profileReturn);
+  return shell(person.name,`<button type="button" class="staff-profile-photo" data-photo="0" aria-label="${t('enlargePhoto')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701"><span>${t('enlargePhoto')}</span></button><h3 style="margin-top:22px">${t('photos')}</h3><div class="photo-reel" role="group" aria-label="${t('photos')}">${[0,1,2,3].map(i=>`<button type="button" data-photo="${i}" aria-label="${t('enlargePhoto')} · ${photoAlt(person,i)}"><img src="${photoPath(person,i)}" alt="${photoAlt(person,i)}" width="92" height="116" loading="lazy"></button>`).join('')}</div>`+box('publicProfile',row('nickname',person.name)+row('primaryVenue',t(person.venue))+row('availability',t('availabilityByTime')))+small('fictionalPhotos')+(s.role==='client'?`<button type="button" class="tb-full" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`+experience.galleryFooter():''),profileReturn);
  }
  if(p==='request')return shell(t('request'),field('type',`<select id="booking-type" data-draft="type">${['ordinary','packageA','packageB'].map(k=>`<option value="${k}" ${s.type===k?'selected':''}>${t(k)}</option>`).join('')}</select>`)+fieldInput('preferredDate','date','2026-10-24')+fieldInput('preferredTime','time','22:00')+small('timezone')+B('reviewRequest','requestReview','tb-main'),'browse');
  if(p==='requestReview')return shell(t('reviewRequest'),box('bookingDetail',row('venue',t(s.venue))+row('staffLabel',s.selected.join(', '))+row('type',t(s.type))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`))+note('pendingBooking')+A('submit','submitBooking'),'request');
@@ -132,9 +133,11 @@ function render(){
  if(p==='result')return shell(t('completed'),note('previewResult')+B('return',dest[s.role]?.[activeTab]||'venues','tb-main'),dest[s.role]?.[activeTab]||'venues');
  return shell(t('placeholder'),note('placeholderBody'),dest[s.role]?.[activeTab]||'account');
 }
-function error(k){document.getElementById('error').textContent=t(k);}
+function error(k){customer.toast(k);}
 root.addEventListener('click',e=>{
+ if(experience.outside(e.target))return;
  const b=e.target.closest('button');if(!b||b.disabled)return;
+ if(experience.click(b))return;
  if(customer.click(b))return;
  if(refinements.click(b))return;
  if(b.dataset.profile){profileId=b.dataset.profile;profileReturn=s.page;return go('staffProfile');}
@@ -160,14 +163,17 @@ root.addEventListener('click',e=>{
  }
 });
 root.addEventListener('keydown',e=>{
+ if(experience.keydown(e))return;
  const tab=e.target.closest('[data-booking-tab],[data-floor-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
  const items=[...tab.parentElement.querySelectorAll('[role="tab"]')],index=items.indexOf(tab);
  const next=e.key==='Home'?0:e.key==='End'?items.length-1:(index+(e.key==='ArrowRight'?1:-1)+items.length)%items.length;
  e.preventDefault();items[next].click();const selector=tab.dataset.bookingTab?'[data-booking-tab="'+items[next].dataset.bookingTab+'"]':'[data-floor-tab="'+items[next].dataset.floorTab+'"]';root.querySelector(selector)?.focus();
 });
-root.addEventListener('input',e=>{if(e.target.dataset.draft)s[e.target.dataset.draft]=e.target.value;refinements.input(e.target);customer.input(e.target);});
+root.addEventListener('scroll',e=>experience.scroll(e.target),true);
+root.addEventListener('input',e=>{if(e.target.dataset.draft)s[e.target.dataset.draft]=e.target.value;refinements.input(e.target);customer.input(e.target);experience.input(e.target);});
 root.addEventListener('change',e=>{
  const el=e.target;
+ if(experience.change(el))return;
  if(el.dataset.draft)s[el.dataset.draft]=el.value;
  if(el.id==='locale'||el.id==='account-locale')return persistLanguage(el.value);
  if(el.id==='role'){readId++;s.image='';s.imageName='';s.reference='';s.reading=false;s.evidenceMode='photo';s.role=el.value;activeTab=0;return go(s.role==='onboarding'?'language':dest[s.role][0]);}
@@ -195,7 +201,7 @@ function refreshLightbox(){
 function openLightbox(index,trigger){
  lightboxProfile=staffProfiles.find(x=>x.id===profileId)||staffProfiles[0];lightboxIndex=index;lightboxTrigger=trigger;
  refreshLightbox();scrollOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';
- lightbox.showModal();document.getElementById('lightbox-close').focus();
+ lightbox.showModal();experience.decorateLightbox();document.getElementById('lightbox-close').focus();
  if(tg&&inTelegram){try{tg.BackButton.show();}catch{}}
 }
 function cyclePhoto(delta){lightboxIndex=(lightboxIndex+delta+4)%4;refreshLightbox();}
@@ -222,8 +228,10 @@ lightboxImage.addEventListener('pointerup',e=>{
 });
 lightboxImage.addEventListener('pointercancel',()=>{swipeStart=null;});
 const tg=window.Telegram?.WebApp,inTelegram=!!tg?.initData;
-const customer=createCustomerContact({s,t,B,A,row,box,note,small,field,esc,go,render});
-const refinements=createRefinements({s,t,B,A,row,box,note,small,field,esc,money,staffProfiles,photoPath,go,render,customerPendingCount:()=>customer.pendingCount()});
+const customer=createCustomerContact({s,t,B,A,row,box,note,small,field,esc,go,render,money,onEvent:event=>experience.notify(event)});
+const experience=createExperience({s,t,B,A,row,box,note,small,field,esc,go,render,money,staffProfiles,photoPath,customer});
+window.PreviewToast=key=>customer.toast(key);
+const refinements=createRefinements({s,t,B,A,row,box,note,small,field,esc,money,staffProfiles,photoPath,go,render,customerPendingCount:()=>customer.pendingCount()+experience.pendingCount()});
 if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(lightbox.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
 splash();
 })();

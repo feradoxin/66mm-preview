@@ -43,3 +43,11 @@ Manager detail screens offer Contact on WeChat and a copy-ID fallback. An offici
 Additional validation: `node tests/customer-contact.cjs` covers four-locale onboarding/skip, contact gates, submission guards, toast/focus, removal/blank-save, pending cancellation, multiple open bookings/packages, manager review/completion, contact entry points, notes removal and terminology.
 
 Customer Bookings → Upcoming / History now switches the list in place, retaining the header and tab controls. It shares the manager Floor tab styling and 180ms content transition, with reduced-motion support and arrow/Home/End keyboard navigation.
+
+## Reservations, profiles and staff dashboard
+
+The shared header/navigation now includes centered branding, right-aligned identity, representative icons, circular account photos and themed deterministic identicons. Error messages use ten-second toasts. Customer venue tiles show sample addresses; room/table sheets offer example inclusions, a room photo viewer, guest count, calendar date and scroll-wheel time. A held reservation can continue through staff browsing/profile/lightbox with a persistent Submit Reservation action. Review and submission create local example records for manager review. Active/History tags, ten-day notifications with read counters, profile photos/nicknames and WeChat/WhatsApp fields are interactive within the current page session.
+
+Staff Home is a four-part dashboard, including a seven-person leaderboard with medal borders/crown and current-plus-six-prior-month filters. Clock Out creates an acknowledgement item in manager Actions. It does not calculate charges, release assignments or post pay. Addresses, prices, facilities, drinks, capacities, leave balances and financial figures are illustrative. WhatsApp remains optional; the approved WeChat booking/removal gates are preserved. Hourly-rate fine print does not introduce automatic whole-hour rounding. Read the handoff before integrating any of these concepts with the backend.
+
+Room-photo assets and the successful built-in image-generation prompt are in [assets/rooms/README.md](assets/rooms/README.md). Additional validation: `node tests/experience.cjs`.

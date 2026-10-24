@@ -1,12 +1,12 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const elements=new Map(),handlers=new Map();
 function el(id){
- if(!elements.has(id))elements.set(id,{id,innerHTML:'',textContent:'',style:{},value:'',open:false,isConnected:true,classList:{toggle(){},contains(k){return id===k},add(){},remove(){}},setAttribute(){},focus(){},querySelector:el,setPointerCapture(){},addEventListener(type,fn){const key=id+':'+type;handlers.set(key,[...(handlers.get(key)||[]),fn])},showModal(){this.open=true},close(){this.open=false;for(const fn of handlers.get(id+':close')||[])fn({})}});
+ if(!elements.has(id))elements.set(id,{id,innerHTML:'',textContent:'',style:{},value:'',open:false,isConnected:true,classList:{toggle(){},contains(k){return id===k},add(){},remove(){}},remove(){},removeAttribute(){},insertAdjacentHTML(_,html){this.innerHTML+=html},setAttribute(){},focus(){},querySelector:el,setPointerCapture(){},addEventListener(type,fn){const key=id+':'+type;handlers.set(key,[...(handlers.get(key)||[]),fn])},showModal(){this.open=true},close(){this.open=false;for(const fn of handlers.get(id+':close')||[])fn({})}});
  return elements.get(id);
 }
 const ctx={Intl,console,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},scrollTo(){},localStorage:{getItem(){return ''},setItem(){}},document:{getElementById:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{lang:'',style:{overflow:''}}}};ctx.window=ctx;
 vm.createContext(ctx);vm.runInContext(fs.readFileSync('locales.js','utf8'),ctx);
-for(const file of ['refinements-locales.js','customer-locales.js','customer-contact.js','refinements.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
+for(const file of ['refinements-locales.js','customer-locales.js','customer-contact.js','experience-locales.js','experience.js','refinements.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
 const code=fs.readFileSync('app.js','utf8').replace('splash();\n})();','globalThis.verify={s,go,openLightbox,staffProfiles};\n})();');vm.runInContext(code,ctx);
 const {s,go,openLightbox,staffProfiles}=ctx.verify;
 function fire(id,type,event={}){for(const fn of handlers.get(id+':'+type)||[])fn(event)}

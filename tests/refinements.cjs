@@ -1,8 +1,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{webcrypto}=require('node:crypto');
 const nodes=new Map(),handlers=new Map(),storage=new Map();
-function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',style:{},open:false,classList:{toggle(){},add(){},remove(){}},setAttribute(){},addEventListener(type,fn){const k=id+':'+type;handlers.set(k,[...(handlers.get(k)||[]),fn]);},querySelector:el});return nodes.get(id);}
+function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',style:{},open:false,classList:{toggle(){},add(){},remove(){}},remove(){},removeAttribute(){},insertAdjacentHTML(_,html){this.innerHTML+=html},setAttribute(){},addEventListener(type,fn){const k=id+':'+type;handlers.set(k,[...(handlers.get(k)||[]),fn]);},querySelector:el});return nodes.get(id);}
 const ctx={Intl,console,TextEncoder,crypto:webcrypto,navigator:{},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},scrollTo(){},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},document:{getElementById:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{lang:'',style:{}}}};ctx.window=ctx;vm.createContext(ctx);
-for(const file of ['locales.js','refinements-locales.js','customer-locales.js','customer-contact.js','invite-demo.js','vendor/qrcode.js','refinements.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
+for(const file of ['locales.js','refinements-locales.js','customer-locales.js','customer-contact.js','experience-locales.js','experience.js','invite-demo.js','vendor/qrcode.js','refinements.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
 vm.runInContext(fs.readFileSync('app.js','utf8').replace('splash();\n})();','globalThis.verify={s,go,refinements,customer};\n})();'),ctx);
 const {s,go,refinements,customer}=ctx.verify;
 const button=data=>({dataset:data,hasAttribute(){return false}});

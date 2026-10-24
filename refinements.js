@@ -47,7 +47,7 @@ async function checkInvite(text){
  used.push(result.code);try{localStorage.setItem('66mm-demo-used-invites',JSON.stringify(used.slice(-30)));}catch{}
  stopCamera();go('inviteVerified');
 }
-function showError(key){const el=document.getElementById('error');if(el)el.textContent=t(key);}
+function showError(key){window.PreviewToast?.(key);}
 async function scanQr(){
  const tg=window.Telegram?.WebApp;
  if(tg?.initData&&tg.isVersionAtLeast('6.4')){try{tg.showScanQrPopup({text:t('scanQr')},text=>{checkInvite(text);return true;});return;}catch{}}
