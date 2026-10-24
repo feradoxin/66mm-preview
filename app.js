@@ -4,9 +4,11 @@ const locales={en:'English',zh:'简体中文',ms:'Bahasa Melayu',vi:'Tiếng Vi�
 let saved='';try{saved=localStorage.getItem('66mm-preview-language')||'';}catch{}
 const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:'onboarding',page:'splash',venue:'venueA',selected:['Maya'],type:'ordinary',finance:'summary',tableFirst:true,requested:false,finalized:false,tallied:false,paid:false,released:false,freed:false,evidenceMode:'photo',image:'',imageName:'',reference:'',reading:false};
 const staffProfiles=[{id:'maya',name:'Maya',venue:'venueA'},{id:'lin',name:'Lin',venue:'venueA'},{id:'an',name:'An',venue:'venueA'},{id:'mei',name:'Mei',venue:'venueA'},{id:'sara',name:'Sara',venue:'venueA'},{id:'nhi',name:'Nhi',venue:'venueA'},{id:'lina',name:'Lina',venue:'venueA'}];
+staffProfiles.forEach((p,i)=>{p.age=[24,27,22,26,25,23,28][i];p.languages={en:'conversational',zh:'fluent',ms:'basic',vi:''};});
 let profileId='maya',profileReturn='browse',lightboxIndex=0,lightboxProfile=null,lightboxTrigger=null,scrollOverflow='';
 const lightbox=document.getElementById('staff-lightbox');
-const photoPath=(person,index)=>`assets/staff/${person.id}-${index+1}.webp?v=experience4`;
+const photoPath=(person,index)=>person.photos?.[index]||`assets/staff/${person.id}-${index+1}.webp?v=experience4`;
+const photoCount=person=>person.photos?.length||4;
 function photoAlt(person,index){return `${person.name} · ${t('photo')} ${index+1}`;}
 const tabs={client:['explore','bookings','updates','account'],staff:['home','roster','finance','account'],manager:['floor','bookings','actions','manage'],admin:['overview','actions','payroll','manage']};
 const dest={client:['venues','bookings','updates','account'],staff:['staffHome','roster','finance','account'],manager:['floor','managerBookings','actions','managerManage'],admin:['overview','actions','payroll','adminManage']};
@@ -48,7 +50,7 @@ function go(p){
  if(p==='inviteIssuer')activeTab=3;
  render();window.scrollTo({top:0,behavior:'instant'});
 }
-function bookingCard(){return box('bookingDetail',badge(s.requested?'pending':'confirmed')+row('venue',t(s.venue))+row('staffLabel',s.selected.join(', '))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`)+B('viewBooking','bookingDetail'));}
+function bookingCard(){return box('bookingDetail',badge(s.requested?'pending':'confirmed')+row('venue',t(s.venue))+row('staffLabel',esc(s.selected.join(', ')))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`)+B('viewBooking','bookingDetail'));}
 function settlementTabs(){return `<div class="tb-tabs">${B('finalize','payroll')}${B('tally','tally')}${B('paidOut','payout')}</div>`;}
 function evidenceImage(){return s.image?`<figure class="tb-evidence-preview"><img src="${s.image}" alt="${t('evidence')}"><figcaption>${esc(s.imageName)}</figcaption></figure>`:'';}
 function evidenceForm(){return `<h3>${t('evidence')}</h3><div class="tb-evidence-modes">${[['photo','takePhoto'],['upload','upload'],['text','textRef']].map(([k,label])=>`<button type="button" data-mode="${k}" aria-pressed="${s.evidenceMode===k}">${t(label)}</button>`).join('')}</div>`+(s.evidenceMode==='text'?area('reference','reference'):
@@ -67,13 +69,13 @@ function render(){
  if(p==='venues')return shell(t('chooseVenue'),['venueA','venueB'].map(k=>box(k,badge('active')+`<button type="button" class="tb-main" data-venue="${k}">${t('explore')}</button>`)).join(''));
  if(p==='explore')return shell(t(s.venue),box('plan',B('browse','browse','tb-main')+B('type','types')),'venues');
  if(p==='types')return shell(t('type'),`<div class="tb-stack">${['ordinary','packageA','packageB'].map(k=>`<button type="button" data-type="${k}">${t(k)}</button>`).join('')}</div>`,'explore');
- if(p==='browse'||p==='roster')return shell(t(p==='browse'?'chooseStaff':'roster'),small('fictionalPhotos')+`<div class="staff-gallery">${staffProfiles.map(person=>`<article class="staff-card"><button type="button" class="staff-open" data-profile="${person.id}" aria-label="${t('viewProfile')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701" loading="lazy"><span class="staff-info"><span class="staff-name">${person.name}</span><span class="staff-venue">${t(person.venue)}</span></span></button>${p==='browse'?`<button type="button" class="staff-select" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`:''}</article>`).join('')}</div>`+(p==='browse'?experience.galleryFooter():''),p==='browse'?'explore':'');
+ if(p==='browse'||p==='roster')return shell(t(p==='browse'?'chooseStaff':'roster'),small('fictionalPhotos')+`<div class="staff-gallery">${staffProfiles.map(person=>`<article class="staff-card"><button type="button" class="staff-open" data-profile="${person.id}" aria-label="${t('viewProfile')} · ${esc(person.name)}"><img src="${photoPath(person,0)}" alt="${esc(photoAlt(person,0))}" width="561" height="701" loading="lazy"><span class="staff-info"><span class="staff-name">${esc(person.name)}</span><span class="staff-venue">${t('ageLabel')}: ${person.age}</span></span></button>${p==='browse'?`<button type="button" class="staff-select" data-person="${esc(person.name)}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`:''}</article>`).join('')}</div>`+(p==='browse'?experience.galleryFooter():''),p==='browse'?'explore':'');
  if(p==='staffProfile'){
   const person=staffProfiles.find(x=>x.id===profileId)||staffProfiles[0];
-  return shell(person.name,`<button type="button" class="staff-profile-photo" data-photo="0" aria-label="${t('enlargePhoto')} · ${person.name}"><img src="${photoPath(person,0)}" alt="${photoAlt(person,0)}" width="561" height="701"><span>${t('enlargePhoto')}</span></button><h3 style="margin-top:22px">${t('photos')}</h3><div class="photo-reel" role="group" aria-label="${t('photos')}">${[0,1,2,3].map(i=>`<button type="button" data-photo="${i}" aria-label="${t('enlargePhoto')} · ${photoAlt(person,i)}"><img src="${photoPath(person,i)}" alt="${photoAlt(person,i)}" width="92" height="116" loading="lazy"></button>`).join('')}</div>`+box('publicProfile',row('nickname',person.name)+row('primaryVenue',t(person.venue))+row('availability',t('availabilityByTime')))+small('fictionalPhotos')+(s.role==='client'?`<button type="button" class="tb-full" data-person="${person.name}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`+experience.galleryFooter()+`<div class="tb-grid">${['ordinary','packageA','packageB'].map(kind=>`<button type="button" data-profile-book="${person.name}" data-profile-kind="${kind}">${t(kind)}</button>`).join('')}</div>`:''),profileReturn);
+  return shell(person.name,`<button type="button" class="staff-profile-photo" data-photo="0" aria-label="${t('enlargePhoto')} · ${esc(person.name)}"><img src="${photoPath(person,0)}" alt="${esc(photoAlt(person,0))}" width="561" height="701"><span>${t('enlargePhoto')}</span></button><h3 style="margin-top:22px">${t('photos')}</h3><div class="photo-reel" role="group" aria-label="${t('photos')}">${Array.from({length:photoCount(person)},(_,i)=>i).map(i=>`<button type="button" data-photo="${i}" aria-label="${t('enlargePhoto')} · ${esc(photoAlt(person,i))}"><img src="${photoPath(person,i)}" alt="${esc(photoAlt(person,i))}" width="92" height="116" loading="lazy"></button>`).join('')}</div>`+box('publicProfile',row('nickname',person.name)+row('primaryVenue',t(person.venue))+row('availability',t('availabilityByTime')))+(person.languages?box('languagesSpoken',Object.entries(person.languages).filter(([,v])=>v).map(([k,v])=>row('language',t('spoken'+k)+' · '+t('level'+v))).join('')):'')+small('fictionalPhotos')+(s.role==='client'?`<button type="button" class="tb-full" data-person="${esc(person.name)}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`+experience.galleryFooter()+`<div class="tb-grid">${['ordinary','packageA','packageB'].map(kind=>`<button type="button" data-profile-book="${esc(person.name)}" data-profile-kind="${kind}">${t(kind)}</button>`).join('')}</div>`:''),profileReturn);
  }
  if(p==='request')return shell(t('request'),field('type',`<select id="booking-type" data-draft="type">${['ordinary','packageA','packageB'].map(k=>`<option value="${k}" ${s.type===k?'selected':''}>${t(k)}</option>`).join('')}</select>`)+fieldInput('preferredDate','date',s.preferredDate||new Date().toISOString().slice(0,10))+fieldInput('preferredTime','time',s.preferredTime||'22:00')+small('timezone')+B('reviewRequest','requestReview','tb-main'),'browse');
- if(p==='requestReview')return shell(t('reviewRequest'),box('bookingDetail',row('venue',t(s.venue))+row('staffLabel',s.selected.join(', '))+row('type',t(s.type))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`))+note('pendingBooking')+A('submit','submitBooking'),'request');
+ if(p==='requestReview')return shell(t('reviewRequest'),box('bookingDetail',row('venue',t(s.venue))+row('staffLabel',esc(s.selected.join(', ')))+row('type',t(s.type))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`))+note('pendingBooking')+A('submit','submitBooking'),'request');
  if(p==='bookings')return shell(t('bookings'),`<div class="tb-tabs">${B('upcoming','bookings')}${B('history','bookingHistory')}</div>`+bookingCard());
  if(p==='bookingHistory')return shell(t('history'),box('bookingDetail',badge('completed')+row('venue',t('venueA'))+row('staffLabel','Maya')+row('start','2026-10-17 · 22:00')),'bookings');
  if(p==='bookingDetail')return shell(t('bookingDetail'),bookingCard()+note(s.requested?'pendingBooking':'pendingChange')+B('requestChange','bookingChange'),'bookings');
@@ -194,7 +196,7 @@ function refreshLightbox(){
  const img=document.getElementById('lightbox-image');
  img.src=photoPath(lightboxProfile,lightboxIndex);img.alt=photoAlt(lightboxProfile,lightboxIndex);
  document.getElementById('lightbox-title').textContent=lightboxProfile.name+' · '+t('photos');
- document.getElementById('lightbox-count').textContent=`${lightboxIndex+1} / 4`;
+ document.getElementById('lightbox-count').textContent=`${lightboxIndex+1} / ${photoCount(lightboxProfile)}`;
  document.getElementById('lightbox-close').textContent=t('closePhoto');
  document.getElementById('lightbox-prev').textContent='‹ '+t('previousPhoto');
  document.getElementById('lightbox-next').textContent=t('nextPhoto')+' ›';
@@ -206,7 +208,7 @@ function openLightbox(index,trigger){
  lightbox.showModal();experience.decorateLightbox();document.getElementById('lightbox-close').focus();
  if(tg&&inTelegram){try{tg.BackButton.show();}catch{}}
 }
-function cyclePhoto(delta){lightboxIndex=(lightboxIndex+delta+4)%4;refreshLightbox();}
+function cyclePhoto(delta){lightboxIndex=(lightboxIndex+delta+photoCount(lightboxProfile))%photoCount(lightboxProfile);refreshLightbox();}
 document.getElementById('lightbox-close').addEventListener('click',()=>lightbox.close());
 document.getElementById('lightbox-prev').addEventListener('click',()=>cyclePhoto(-1));
 document.getElementById('lightbox-next').addEventListener('click',()=>cyclePhoto(1));
@@ -234,6 +236,6 @@ const customer=createCustomerContact({s,t,B,A,row,box,note,small,field,esc,go,re
 const experience=createExperience({s,t,B,A,row,box,note,small,field,esc,go,render,money,staffProfiles,photoPath,customer});
 window.PreviewToast=key=>customer.toast(key);
 const refinements=createRefinements({s,t,B,A,row,box,note,small,field,esc,money,staffProfiles,photoPath,go,render,customerPendingCount:()=>customer.pendingCount()+experience.pendingCount()});
-if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(lightbox.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
+if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(experience.back())return;if(lightbox.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
 splash();
 })();

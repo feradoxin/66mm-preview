@@ -1,0 +1,6 @@
+# Fictional bar frontage thumbnails
+
+Generated using the built-in image-generation tool, 24 October 2026. These are fictional concept venues, not photographs of actual operating locations. Optimized to 640px WebP for thumbnails; the UI applies its vignette using CSS.
+
+- `frontage.webp`: "Use case: photorealistic-natural. Asset: fictional Malaysian upscale bar frontage thumbnail for 66MM mobile preview. Create a cinematic photograph of a modern Kuala Lumpur nightlife bar exterior at blue hour, black glass and dark stone facade, tasteful red neon sign reading '66MM', red entrance light, no people, no cars blocking entrance, rain-darkened pavement, elegant intimate lounge. Front-facing architecture, square composition, realistic photography, no watermark. This is a fictional venue."
+- `frontage-b.webp`: "Photorealistic fictional Malaysian nightlife venue frontage for mobile preview. Square architectural photo of an intimate upscale bar in a renovated two-storey Johor Bahru shophouse, dark midnight-blue facade, tasteful small neon-red '66MM' sign, red-lit glass entrance, tropical potted palms, wet sidewalk, evening, no people. Distinct shophouse architecture, no skyline, no watermark. Elegant nightclub atmosphere, believable materials. Entire entrance visible."
