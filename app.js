@@ -4,7 +4,7 @@ const locales={en:'English',zh:'简体中文',ms:'Bahasa Melayu',vi:'Tiếng Vi�
 let saved='';try{saved=localStorage.getItem('66mm-preview-language')||'';}catch{}
 const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:'onboarding',page:'splash',venue:'venueA',selected:['Maya'],type:'ordinary',finance:'summary',tableFirst:true,requested:false,finalized:false,tallied:false,paid:false,released:false,freed:false,evidenceMode:'photo',image:'',imageName:'',reference:'',reading:false};
 const staffProfiles=[{id:'maya',name:'Maya',venue:'venueA'},{id:'lin',name:'Lin',venue:'venueA'},{id:'an',name:'An',venue:'venueA'},{id:'mei',name:'Mei',venue:'venueA'},{id:'sara',name:'Sara',venue:'venueA'},{id:'nhi',name:'Nhi',venue:'venueA'},{id:'lina',name:'Lina',venue:'venueA'}];
-staffProfiles.forEach((p,i)=>{p.age=[24,27,22,26,25,23,28][i];p.languages={en:'conversational',zh:'fluent',ms:'basic',vi:''};});
+staffProfiles.forEach((p,i)=>{p.age=[24,27,22,26,25,23,28][i];p.dob=String(new Date().getFullYear()-p.age)+'-01-15';p.languages={en:'conversational',zh:'fluent',ms:'basic',vi:''};});
 let profileId='maya',profileReturn='browse',lightboxIndex=0,lightboxProfile=null,lightboxTrigger=null,scrollOverflow='';
 const lightbox=document.getElementById('staff-lightbox');
 const photoPath=(person,index)=>person.photos?.[index]||`assets/staff/${person.id}-${index+1}.webp?v=experience4`;
