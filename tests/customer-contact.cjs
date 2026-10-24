@@ -23,7 +23,7 @@ for(const lang of ['en','zh','ms','vi']){
  for(const page of ['request','requestReview','bookingChange','customerConflict']){go(page);assert.equal(s.page,page);assert(!el('tb-content').innerHTML.includes('<textarea'));}
  s.role='onboarding';go('wechatOnboarding');click({action:'skipWechat'});assert(customer.hasWechat());assert.equal(s.page,'wechatOnboarding');s.role='client';go('wechatEdit');save('');assert(customer.hasWechat());assert(el('contact-toast').innerHTML.includes(ctx.COPY[lang].wechatRemoveBlocked));click({action:'removeWechat'});assert(customer.hasWechat());
  el('customer-change').value='cancel';click({action:'sendCustomerChange'});assert.equal(customer.pendingCount(),1);click({action:'removeWechat'});assert(customer.hasWechat());
- s.role='manager';go('actions');assert(el('tb-content').innerHTML.includes(ctx.COPY[lang].customerFollowUp));assert(el('tb-nav').innerHTML.includes('7'));assert(el('tb-content').innerHTML.includes('large-count">7</span>'));
+ s.role='manager';go('actions');assert(el('tb-content').innerHTML.includes(ctx.COPY[lang].customerFollowUp));assert(el('tb-nav').innerHTML.includes('8'));assert(el('tb-content').innerHTML.includes('large-count">8</span>'));
  for(const page of ['managerBooking','managerConfirm','packageReservation','package','overrun','visit','reservedVisit','billing','serviceReview']){go(page);assert(el('tb-content').innerHTML.includes('contactCustomer'));}
  go('spaceDetail');assert(el('tb-content').innerHTML.includes('contactCustomer'));
  click({action:'contactCustomer'});assert.equal(s.page,'customerContact');assert(el('tb-content').innerHTML.includes('demo_customer'));assert(!el('tb-content').innerHTML.includes('weixin://'));

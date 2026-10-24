@@ -10,3 +10,29 @@
 #tbw06 .identity-name{display:flex;align-items:center;justify-content:flex-end;gap:7px}#tbw06 .identity-name img{border-radius:50%;object-fit:cover;border:1px solid #9f4e61}
 
 #tbw06 .upload-profile{border:1px solid #704251;border-radius:8px;padding:10px 12px;text-align:center;min-height:20px}#tbw06 .upload-profile input.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Shared action alignment. Structured list cards retain their left-aligned content. */
+#tbw06 button.tb-main,#tbw06 button.tb-full,#tbw06 .tb-grid>button,#tbw06 .tb-tabs>button,#tbw06 .sheet-actions>button,#tbw06 button.text-button,#tbw06 .reserve-option>button,.reservation-sheet .tb-main,.reservation-sheet .tb-full{ text-align:center;justify-content:center; }
+#tbw06 .new-head .brand{mix-blend-mode:lighten;filter:contrast(1.12);}
+#tbw06 .rank-avatar .crown{width:13px;height:12px;left:-5px;top:-14px;transform:rotate(-30deg);transform-origin:center;}
+#tbw06 .rank-avatar .crown svg{width:13px;height:12px;}
+#tbw06 .leaderboard-list{padding-top:12px;}
+#tbw06 .leave-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+.leave-month{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0;}
+.leave-month button{width:42px;height:42px;color:#fff;background:#29182b;border:1px solid #ff687c;border-radius:10px;font-size:24px;}
+.leave-month strong{font-size:16px;text-align:center;}
+.leave-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;}
+.leave-calendar>span{text-align:center;font-size:12px;color:#bcc8dc;min-height:24px;}
+.leave-day{min-height:38px;border:1px solid #35465d;border-radius:8px;color:#fff;background:#112238;text-align:center;padding:4px;font-size:14px;}
+.leave-calendar .pending,.leave-legend .pending{background:#5a4018;color:#ffe0a3;border-color:#d59b40;}
+.leave-calendar .approved,.leave-legend .approved{background:#14473e;color:#b7ffdf;border-color:#49cbaa;}
+.leave-calendar .past,.leave-legend .past{background:#333b4b;color:#cad3e3;border-color:#77869e;}
+.leave-calendar .chosen{background:#b92d4a;border:2px solid #ff9cae;color:#fff;}
+.leave-day:disabled{opacity:1;cursor:default;}
+.leave-day:disabled:not(.past):not(.approved):not(.pending){opacity:.35;}
+.leave-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+.leave-legend>span{padding:5px 8px;border:1px solid;border-radius:7px;font-size:11px;}
+.leave-selection{font-size:14px;line-height:1.5;}
+/* Animate the logo pixels themselves: neon ignition, spring-in and chromatic pulse. */
+#tbw06 .tb-splash.is-playing .tb-logo-reveal img{animation:logo-ignite 2.7s both;transform-origin:center;will-change:transform,filter,opacity;}
+@keyframes logo-ignite{0%{opacity:0;transform:scale(.72) rotateY(28deg);filter:brightness(.3) blur(7px);}15%{opacity:.85;filter:brightness(1.7) blur(0);}20%{opacity:.28;filter:brightness(.5);}25%{opacity:1;transform:scale(1.06) rotateY(0);filter:brightness(2.2) drop-shadow(0 0 18px #ff2447);}36%{transform:scale(.98);filter:brightness(1);}48%{transform:scale(1);filter:brightness(1.35) drop-shadow(0 0 9px #ff2447);}70%{filter:brightness(1) drop-shadow(0 0 3px #ff2447);}85%{transform:scale(1.025);filter:brightness(1.6) drop-shadow(0 0 13px #ff2447);}100%{opacity:1;transform:scale(1);filter:brightness(1);}}
+@media(prefers-reduced-motion:reduce){#tbw06 .tb-splash.is-playing .tb-logo-reveal img{animation:none;filter:none;}}
