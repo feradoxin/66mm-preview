@@ -36,7 +36,7 @@
  pendingInActions:['Pending requests remain in Actions for review.','待审申请保留在待办事项中。','Permintaan tertunda kekal dalam Tindakan untuk semakan.','Yêu cầu chờ duyệt được giữ trong mục Tác vụ.'],
  noMatchingBookings:['No bookings match these filters.','没有符合筛选条件的预订。','Tiada tempahan sepadan dengan penapis ini.','Không có đặt chỗ phù hợp với bộ lọc.'],
  pastBookingRange:['Choose a date within the current month or the last three finalized months.','选择本月或最近三个已结算月份内的日期。','Pilih tarikh dalam bulan semasa atau tiga bulan dimuktamadkan terakhir.','Chọn ngày trong tháng hiện tại hoặc ba tháng đã chốt gần nhất.'],
- endUnconfirmed:['End Time Not Confirmed','结束时间未确认','Masa Tamat Belum Disahkan','Chưa xác nhận giờ kết thúc'],
+ endUnconfirmed:['Not Confirmed','未确认','Belum Disahkan','Chưa xác nhận'],
  estimatedEnd:['Estimated End Time','预计结束时间','Anggaran Masa Tamat','Giờ kết thúc dự kiến'],
  conflictNote:['Overlapping confirmed time or simultaneous active service requires manager review.','已确认时段重叠或同时进行的服务需要经理处理。','Masa disahkan bertindih atau khidmat aktif serentak memerlukan semakan pengurus.','Thời gian đã xác nhận chồng lấn hoặc dịch vụ diễn ra đồng thời cần quản lý xử lý.'],
  completedAt:['Completed At','完成时间','Selesai Pada','Hoàn tất lúc'],
@@ -48,7 +48,7 @@
  function titleCase(text,lang='en'){
   if(lang==='zh'||/[.!?。！？]\s*$/.test(text)||text.split(/\s+/).length>15)return text.charAt(0).toLocaleUpperCase()+text.slice(1);
   const small={en:new Set('a an the to for and or but nor as at by in of on per via with from into'.split(' ')),ms:new Set('dan atau untuk di ke dari dengan yang pada'.split(' ')),vi:new Set('và hoặc cho của với ở từ trong'.split(' '))}[lang]||new Set();
-  return text.split(/(\s+)/).map((w,i)=>{if(!/\p{L}/u.test(w))return w;if(i>0&&small.has(w.toLocaleLowerCase()))return w.toLocaleLowerCase();return w.replace(/\p{L}/u,c=>c.toLocaleUpperCase());}).join('');
+  return text.split(/(\s+)/).map((w,i)=>{if(!/\p{L}/u.test(w))return w;if(i>0&&small.has(w.toLocaleLowerCase())&&w!==w.toLocaleUpperCase())return w.toLocaleLowerCase();return w.replace(/\p{L}/u,c=>c.toLocaleUpperCase());}).join('');
  }
  window.previewTitleCase=titleCase;
  for(const [lang,values] of Object.entries(COPY))for(const key of Object.keys(values))values[key]=titleCase(values[key],lang);
