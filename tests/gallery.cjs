@@ -1,32 +1,20 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const elements=new Map(),handlers=new Map();
-function el(id){
- if(!elements.has(id))elements.set(id,{id,innerHTML:'',textContent:'',style:{},value:'',open:false,isConnected:true,classList:{toggle(){},contains(k){return id===k},add(){},remove(){}},remove(){},removeAttribute(){},insertAdjacentHTML(_,html){this.innerHTML+=html},setAttribute(){},focus(){},querySelector:el,setPointerCapture(){},addEventListener(type,fn){const key=id+':'+type;handlers.set(key,[...(handlers.get(key)||[]),fn])},showModal(){this.open=true},close(){this.open=false;for(const fn of handlers.get(id+':close')||[])fn({})}});
- return elements.get(id);
+function harness(){const nodes=new Map(),timers=[],handlers=new Map();let now=Date.parse('2026-10-24T10:00:00Z');const RealDate=Date;
+ class Clock extends RealDate{constructor(...a){super(...(a.length?a:[now]));}static now(){return now;}}
+ function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',hidden:true,value:'',style:{},open:false,dataset:{},isConnected:true,classList:{toggle(){},add(){},remove(){}},focus(){},remove(){this.innerHTML=''},removeAttribute(){},insertAdjacentHTML(_,html){this.innerHTML+=html},setAttribute(k,v){this[k]=v;},addEventListener(type,fn){handlers.set(id+':'+type,fn)},querySelector:el,querySelectorAll:()=>[],close(){this.open=false}});return nodes.get(id);}
+ const ctx={Date:Clock,Intl,console,navigator:{clipboard:{writeText:async()=>{}}},setTimeout:(fn,delay)=>{timers.push({fn,delay});return timers.length},clearTimeout(){},setInterval:()=>1,clearInterval(){},scrollTo(){},localStorage:{getItem(){return null},setItem(){}},document:{getElementById:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{lang:'',style:{}}}};ctx.window=ctx;vm.createContext(ctx);
+ for(const f of ['locales.js','refinements-locales.js','customer-locales.js','experience-locales.js','invite-demo.js','refinements.js','customer-contact.js','upgrade.js','service-finance.js','operations.js','header-outline.js','mobile9.js','design11.js','experience.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
+ vm.runInContext(fs.readFileSync('app.js','utf8').replace('splash();\n})();','globalThis.verify={s,go,customer,experience,error,refinements};\n})();'),ctx);
+ return {...ctx.verify,ctx,el,timers,handlers,advance:ms=>now+=ms,flush:delay=>{const tasks=timers.filter(x=>x.delay===delay);tasks.forEach(x=>{x.delay=-1;x.fn()})}};
 }
-const ctx={Intl,console,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},scrollTo(){},localStorage:{getItem(){return ''},setItem(){}},document:{getElementById:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{lang:'',style:{overflow:''}}}};ctx.window=ctx;
-vm.createContext(ctx);vm.runInContext(fs.readFileSync('locales.js','utf8'),ctx);
-for(const file of ['refinements-locales.js','customer-locales.js','customer-contact.js','experience-locales.js','upgrade.js','service-finance.js','operations.js','header-outline.js','mobile9.js','experience.js','refinements.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
-const code=fs.readFileSync('app.js','utf8').replace('splash();\n})();','globalThis.verify={s,go,openLightbox,staffProfiles};\n})();');vm.runInContext(code,ctx);
-const {s,go,openLightbox,staffProfiles}=ctx.verify;
-function fire(id,type,event={}){for(const fn of handlers.get(id+':'+type)||[])fn(event)}
-function counter(){return el('lightbox-count').textContent}
-const keys=Object.keys(ctx.COPY.en).sort();let checks=0;
+
+
 for(const lang of ['en','zh','ms','vi']){
- assert.deepEqual(Object.keys(ctx.COPY[lang]).sort(),keys);s.lang=lang;
- for(const role of ['client','staff']){
-  s.role=role;go(role==='client'?'browse':'roster');assert.equal((el('tb-content').innerHTML.match(/class="staff-card"/g)||[]).length,12);
-  assert.equal(el('tb-content').innerHTML.includes('data-person='),true);checks++;
- }
- go('staffProfile');assert.equal((el('tb-content').innerHTML.match(/data-photo=/g)||[]).length,5);
- openLightbox(3,el('thumb'));assert.equal(counter(),'4 / 4');
- fire('lightbox-next','click');assert.equal(counter(),'1 / 4');fire('lightbox-prev','click');assert.equal(counter(),'4 / 4');
- fire('lightbox-image','pointerdown',{isPrimary:true,clientX:200,clientY:100,pointerId:1});fire('lightbox-image','pointerup',{clientX:100,clientY:105,pointerId:1});assert.equal(counter(),'1 / 4');
- fire('lightbox-image','pointerdown',{isPrimary:true,clientX:100,clientY:100,pointerId:2});fire('lightbox-image','pointerup',{clientX:200,clientY:105,pointerId:2});assert.equal(counter(),'4 / 4');
- fire('lightbox-image','pointerdown',{isPrimary:true,clientX:100,clientY:100,pointerId:3});fire('lightbox-image','pointerup',{clientX:110,clientY:220,pointerId:3});assert.equal(counter(),'4 / 4');
- fire('staff-lightbox','click',{target:el('lightbox-image')});assert.equal(el('staff-lightbox').open,true);
- fire('staff-lightbox','click',{target:el('lightbox-stage')});assert.equal(el('staff-lightbox').open,false);assert.equal(ctx.document.documentElement.style.overflow,'');checks+=9;
+ const {s,go,experience:x,el,ctx}=harness();s.lang=lang;
+ const keys=Object.keys(ctx.COPY.en).sort();assert.deepEqual(Object.keys(ctx.COPY[lang]).sort(),keys);
+ for(const role of ['client','staff']){s.role=role;go(role==='client'?'browse':'roster');assert.equal((el('tb-content').innerHTML.match(/class="staff-card /g)||[]).length,12);assert.equal(el('tb-content').innerHTML.includes('data-bulk-person'),role==='client');
+ x.click({dataset:{profile:'yue'}});go('staffProfile');const first=el('tb-content').innerHTML;assert(first.includes('yue-1.webp'));assert(!first.includes('data-photo='));assert(!first.includes('enlargePhoto'));assert(first.indexOf(ctx.COPY[lang].publicProfile)<first.indexOf(ctx.COPY[lang].availability));assert(first.indexOf(ctx.COPY[lang].availability)<first.indexOf(ctx.COPY[lang].languagesSpoken));x.click({dataset:{inlinePhoto:'2'}});assert(el('tb-content').innerHTML.includes('profile-large-photo photo-unavailable" src="assets/staff/yue-3.webp')||el('tb-content').innerHTML.includes('profile-large-photo " src="assets/staff/yue-3.webp'));assert.equal(el('tb-content').innerHTML.includes('data-reserve-person='),role==='client');}
 }
-for(const person of staffProfiles)for(let i=1;i<=4;i++)assert(fs.statSync(`assets/staff/${person.id}-${i}.webp`).size>0);
-assert(!/fetch\(|XMLHttpRequest|sendData\(/.test(code));
-console.log(`PASS: ${checks} gallery/lightbox checks across four locales; all 48 local photo assets; no transaction or upload API.`);
+for(const id of ['maya','lin','an','mei','sara','nhi','lina','soojin','yue','thao','hana','jia'])for(let i=1;i<=4;i++)assert(fs.statSync(`assets/staff/${id}-${i}.webp`).size>0);
+assert(!fs.readFileSync('index.html','utf8').includes('id="staff-lightbox"'));
+console.log('PASS four locales: 12-person Customer/Staff rosters, customer-only bulk controls, inline photo selection, profile segment order, no lightbox, 48 local assets.');

@@ -3,7 +3,7 @@ function harness(){
  const nodes=new Map(),handlers=new Map();
  function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',hidden:true,value:'',style:{},open:false,classList:{toggle(){},add(){}},focus(){this.focused=true},select(){},remove(){},removeAttribute(){},insertAdjacentHTML(_,html){this.innerHTML+=html},setAttribute(){},addEventListener(type,fn){handlers.set(id+':'+type,fn)},querySelector:el});return nodes.get(id)}
  const ctx={Intl,console,navigator:{clipboard:{writeText:async()=>{}}},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},scrollTo(){},localStorage:{getItem(){return null},setItem(){}},document:{getElementById:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{lang:'',style:{}}}};ctx.window=ctx;vm.createContext(ctx);
- for(const f of ['locales.js','refinements-locales.js','customer-locales.js','invite-demo.js','refinements.js','customer-contact.js','experience-locales.js','upgrade.js','service-finance.js','operations.js','header-outline.js','mobile9.js','experience.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
+ for(const f of ['locales.js','refinements-locales.js','customer-locales.js','invite-demo.js','refinements.js','customer-contact.js','experience-locales.js','upgrade.js','service-finance.js','operations.js','header-outline.js','mobile9.js','design11.js','experience.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
  vm.runInContext(fs.readFileSync('app.js','utf8').replace('splash();\n})();','globalThis.verify={s,go,customer};\n})();'),ctx);
  const {s,go,customer}=ctx.verify,button=data=>({dataset:data}),click=data=>customer.click(button(data));
  return {s,go,customer,el,ctx,click,save:(value,onboarding=false)=>{customer.input({id:'wechat-id',value});click({action:onboarding?'saveWechatOnboarding':'saveWechat'})}};
@@ -16,7 +16,7 @@ for(const lang of ['en','zh','ms','vi']){
  s.lang=lang==='en'?'vi':'en';go('browse');assert(el('contact-toast').innerHTML.includes(ctx.COPY[s.lang].wechatRequired));s.lang=lang;go('browse');
  click({action:'submitBooking'});assert.equal(customer.openRecords().length,1);
  for(const action of ['sendCustomerChange','sendCustomerConflict']){click({action});assert.equal(customer.pendingCount(),0);}
- for(const page of ['bookings','bookingHistory','bookingDetail','account','updates','browse','staffProfile']){go(page);assert.equal(s.page,page==='bookingHistory'?'bookings':page);}
+ for(const page of ['bookings','bookingHistory','bookingDetail','account','updates','browse','staffProfile']){go(page);assert.equal(s.page,['bookingHistory','bookingDetail'].includes(page)?'bookings':page);}
  go('bookings');click({bookingTab:'upcoming'});const bookingHeader=el('tb-header').innerHTML;click({bookingTab:'history'});assert.equal(s.page,'bookings');assert.equal(el('tb-header').innerHTML,bookingHeader);assert(el('booking-panel').innerHTML.includes(ctx.COPY[lang].completed));click({bookingTab:'upcoming'});assert.equal(s.page,'bookings');assert(el('booking-panel').innerHTML.includes('Maya'));
  click({action:'toastAddWechat'});assert.equal(s.page,'wechatEdit');assert(el('wechat-id').focused);
  save('<script>bad</script>');assert(!customer.hasWechat());save('demo_customer');assert(customer.hasWechat());

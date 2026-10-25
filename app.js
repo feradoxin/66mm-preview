@@ -2,7 +2,7 @@
 const root=document.getElementById('tbw06'),content=document.getElementById('tb-content'),header=document.getElementById('tb-header'),nav=document.getElementById('tb-nav'),controls=document.getElementById('demo-controls');
 const locales={en:'English',zh:'简体中文',ms:'Bahasa Melayu',vi:'Tiếng Việt'};
 let saved='';try{saved=localStorage.getItem('66mm-preview-language')||'';}catch{}
-const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:'onboarding',page:'splash',venue:'venueA',selected:['Maya'],type:'ordinary',finance:'summary',tableFirst:true,requested:false,finalized:false,tallied:false,paid:false,released:false,freed:false,evidenceMode:'photo',image:'',imageName:'',reference:'',reading:false};
+const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:'onboarding',page:'splash',venue:'venueA',selected:[],type:'ordinary',finance:'summary',tableFirst:true,requested:false,finalized:false,tallied:false,paid:false,released:false,freed:false,evidenceMode:'photo',image:'',imageName:'',reference:'',reading:false};
 const staffProfiles=[{id:'maya',name:'Maya',venue:'venueA'},{id:'lin',name:'Lin',venue:'venueA'},{id:'an',name:'An',venue:'venueA'},{id:'mei',name:'Mei',venue:'venueA'},{id:'sara',name:'Sara',venue:'venueA'},{id:'nhi',name:'Nhi',venue:'venueA'},{id:'lina',name:'Lina',venue:'venueA'},{id:'soojin',name:'Soojin',venue:'venueA'},{id:'yue',name:'Yue',venue:'venueA'},{id:'thao',name:'Thao',venue:'venueA'},{id:'hana',name:'Hana',venue:'venueA'},{id:'jia',name:'Jia',venue:'venueA'}];
 staffProfiles.forEach((p,i)=>{p.age=[24,27,22,26,25,23,28,26,24,27,25,28][i];p.dob=String(new Date().getFullYear()-p.age)+'-01-15';p.languages={en:'conversational',zh:'fluent',ms:'basic',vi:''};});
 let profileId='maya',profileReturn='browse',lightboxIndex=0,lightboxProfile=null,lightboxTrigger=null,scrollOverflow='';
@@ -33,14 +33,15 @@ function shell(title,body,back=''){
  backPage=back;
  header.innerHTML=experience.header(title,back);
  content.innerHTML=body+(s.page==='actions'?'':customer.managerPanel(s.page,body)+experience.managerTasks(s.page));
- nav.innerHTML=s.role==='onboarding'?'':tabs[s.role].map((k,i)=>`<button type="button" data-tab="${i}" ${i===activeTab?'aria-current="page"':''}>${experience.navIcon(k)}<span>${t(k)}</span>${experience.navigationBadge(k)}</button>`).join('');
+ const trail=[t(s.role),s.role==='admin'?t('company'):t(s.venue),t(tabs[s.role]?.[activeTab]||'onboarding')];if(title!==trail.at(-1))trail.push(title);
+ nav.innerHTML=s.role==='onboarding'?'':`<div class="navigation-breadcrumb" aria-label="${t('breadcrumb')}">${trail.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`+tabs[s.role].map((k,i)=>`<button type="button" data-tab="${i}" ${i===activeTab?'aria-current="page"':''}>${experience.navIcon(k)}<span>${t(k)}</span>${experience.navigationBadge(k)}</button>`).join('');
  nav.setAttribute('aria-label',t('preview'));document.documentElement.lang=s.lang==='zh'?'zh-Hans':s.lang;document.title='66MM · '+t('preview');
  if(tg&&inTelegram){try{back?tg.BackButton.show():tg.BackButton.hide();}catch{}}
  refinements.afterRender();customer.afterRender();experience.afterRender();
 }
 function go(p){
  if(customer.beforeGo(p))return;
- if(lightbox.open)lightbox.close();
+ if(lightbox?.open)lightbox.close();
  clearTimeout(timer);clearTimeout(exitTimer);s.page=p;
  const groups={client:[['venues','explore','types','browse','request','requestReview'],['bookings','bookingHistory','bookingDetail','bookingChange','changeSent','customerConflict'],['updates'],['account','wechatEdit']],staff:[['staffHome','assignment','assignmentRequest','leaderboard'],['roster'],['finance','statement','document'],['account','profile','profilePending','leave','leaveForm','leavePending']],manager:[['floor','visit','freeVisit','reservedVisit','billing','serviceReview','freeReview','overrun','package','earlyEnd','price','priceReview'],['managerBookings','managerBooking','managerConfirm','packageReservation'],['actions'],['managerManage','funds','account','payoutReview','payoutConfirm','payoutResult']],admin:[['overview','venueOverview'],['actions'],['payroll','finalizeReview','tally','tallyReview','tallyRecorded','payout','payoutReview','payoutConfirm','payoutResult','uncertain'],['adminManage','account']]};
  const i=groups[s.role]?.findIndex(g=>g.includes(p));if(i>=0)activeTab=i;
@@ -69,11 +70,6 @@ function render(){
  if(p==='venues')return shell(t('chooseVenue'),['venueA','venueB'].map(k=>box(k,badge('active')+`<button type="button" class="tb-main" data-venue="${k}">${t('explore')}</button>`)).join(''));
  if(p==='explore')return shell(t(s.venue),box('plan',B('browse','browse','tb-main')+B('type','types')),'venues');
  if(p==='types')return shell(t('type'),`<div class="tb-stack">${['ordinary','packageA','packageB'].map(k=>`<button type="button" data-type="${k}">${t(k)}</button>`).join('')}</div>`,'explore');
- if(p==='browse'||p==='roster')return shell(t(p==='browse'?'chooseStaff':'roster'),small('fictionalPhotos')+`<div class="staff-gallery">${staffProfiles.map(person=>`<article class="staff-card"><button type="button" class="staff-open" data-profile="${person.id}" aria-label="${t('viewProfile')} · ${esc(person.name)}"><img src="${photoPath(person,0)}" alt="${esc(photoAlt(person,0))}" width="561" height="701" loading="lazy"><span class="staff-info"><span class="staff-name">${esc(person.name)}</span><span class="staff-venue">${t('ageLabel')}: ${person.age}</span></span></button>${['client','staff'].includes(s.role)?`<button type="button" class="staff-select" data-person="${esc(person.name)}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`:''}</article>`).join('')}</div>`+(p==='browse'?experience.galleryFooter():''),p==='browse'?'explore':'');
- if(p==='staffProfile'){
-  const person=staffProfiles.find(x=>x.id===profileId)||staffProfiles[0];
-  return shell(person.name,`<button type="button" class="staff-profile-photo" data-photo="0" aria-label="${t('enlargePhoto')} · ${esc(person.name)}"><img src="${photoPath(person,0)}" alt="${esc(photoAlt(person,0))}" width="561" height="701"><span>${t('enlargePhoto')}</span></button><h3 style="margin-top:22px">${t('photos')}</h3><div class="photo-reel" role="group" aria-label="${t('photos')}">${Array.from({length:photoCount(person)},(_,i)=>i).map(i=>`<button type="button" data-photo="${i}" aria-label="${t('enlargePhoto')} · ${esc(photoAlt(person,i))}"><img src="${photoPath(person,i)}" alt="${esc(photoAlt(person,i))}" width="92" height="116" loading="lazy"></button>`).join('')}</div>`+box('publicProfile',row('nickname',person.name)+row('ageLabel',person.age)+row('primaryVenue',t(person.venue))+row('availability',t('availabilityByTime')))+(person.languages?box('languagesSpoken',Object.entries(person.languages).filter(([,v])=>v).map(([k,v])=>row('language',t('spoken'+k)+' · '+t('level'+v))).join('')):'')+small('fictionalPhotos')+(['client','staff'].includes(s.role)?`<button type="button" class="tb-full" data-person="${esc(person.name)}" aria-pressed="${s.selected.includes(person.name)}">${t(s.selected.includes(person.name)?'selected':'select')}</button>`+(s.role==='client'?experience.galleryFooter():''):''),profileReturn);
- }
  if(p==='request')return shell(t('request'),field('type',`<select id="booking-type" data-draft="type">${['ordinary','packageA','packageB'].map(k=>`<option value="${k}" ${s.type===k?'selected':''}>${t(k)}</option>`).join('')}</select>`)+fieldInput('preferredDate','date',s.preferredDate||new Date().toISOString().slice(0,10))+fieldInput('preferredTime','time',s.preferredTime||'22:00')+small('timezone')+B('reviewRequest','requestReview','tb-main'),'browse');
  if(p==='requestReview')return shell(t('reviewRequest'),box('bookingDetail',row('venue',t(s.venue))+row('staffLabel',esc(s.selected.join(', ')))+row('type',t(s.type))+row('start',`${s.preferredDate||'2026-10-24'} · ${s.preferredTime||'22:00'}`))+note('pendingBooking')+A('submit','submitBooking'),'request');
  if(p==='bookings')return shell(t('bookings'),`<div class="tb-tabs">${B('upcoming','bookings')}${B('history','bookingHistory')}</div>`+bookingCard());
@@ -144,7 +140,6 @@ root.addEventListener('click',e=>{
  if(customer.click(b))return;
  if(refinements.click(b))return;
  if(b.dataset.profile){profileId=b.dataset.profile;profileReturn=s.page;return go('staffProfile');}
- if(b.dataset.photo!==undefined)return openLightbox(Number(b.dataset.photo),b);
  if(b.dataset.language)return persistLanguage(b.dataset.language);
  if(b.dataset.tab!==undefined){activeTab=Number(b.dataset.tab);return go(dest[s.role][activeTab]);}
  if(b.dataset.venue){s.venue=b.dataset.venue;return go('explore');}
@@ -193,50 +188,11 @@ root.addEventListener('change',e=>{
 });
 window.PreviewCancelPayoutEvidenceRead=()=>{readId++;s.reading=false;};
 function splash(){clearTimeout(timer);clearTimeout(exitTimer);s.page='splash';render();timer=setTimeout(()=>{root.querySelector('.tb-splash')?.classList.add('is-leaving');exitTimer=setTimeout(()=>go(s.chosen&&s.role!=='onboarding'?dest[s.role][0]:'language'),450);},2800);}
-function refreshLightbox(){
- const img=document.getElementById('lightbox-image');
- img.src=photoPath(lightboxProfile,lightboxIndex);img.alt=photoAlt(lightboxProfile,lightboxIndex);
- document.getElementById('lightbox-title').textContent=lightboxProfile.name+' · '+t('photos');
- document.getElementById('lightbox-count').textContent=`${lightboxIndex+1} / ${photoCount(lightboxProfile)}`;
- document.getElementById('lightbox-close').textContent=t('closePhoto');
- document.getElementById('lightbox-prev').textContent='‹ '+t('previousPhoto');
- document.getElementById('lightbox-next').textContent=t('nextPhoto')+' ›';
- document.getElementById('lightbox-help').textContent=t('swipePhotos');
-}
-function openLightbox(index,trigger){
- lightboxProfile=staffProfiles.find(x=>x.id===profileId)||staffProfiles[0];lightboxIndex=index;lightboxTrigger=trigger;
- refreshLightbox();scrollOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';
- lightbox.showModal();experience.decorateLightbox();document.getElementById('lightbox-close').focus();
- if(tg&&inTelegram){try{tg.BackButton.show();}catch{}}
-}
-function cyclePhoto(delta){lightboxIndex=(lightboxIndex+delta+photoCount(lightboxProfile))%photoCount(lightboxProfile);refreshLightbox();}
-document.getElementById('lightbox-close').addEventListener('click',()=>lightbox.close());
-document.getElementById('lightbox-prev').addEventListener('click',()=>cyclePhoto(-1));
-document.getElementById('lightbox-next').addEventListener('click',()=>cyclePhoto(1));
-lightbox.addEventListener('click',e=>{if(e.target===lightbox||e.target.classList.contains('lightbox-stage'))lightbox.close();});
-lightbox.addEventListener('close',()=>{
- document.documentElement.style.overflow=scrollOverflow;
- if(lightboxTrigger?.isConnected)lightboxTrigger.focus();
- if(tg&&inTelegram){try{backPage?tg.BackButton.show():tg.BackButton.hide();}catch{}}
-});
-lightbox.addEventListener('keydown',e=>{
- if(e.key==='ArrowLeft'){e.preventDefault();cyclePhoto(-1);}
- if(e.key==='ArrowRight'){e.preventDefault();cyclePhoto(1);}
-});
-let swipeStart=null;
-const lightboxImage=document.getElementById('lightbox-image');
-lightboxImage.addEventListener('pointerdown',e=>{if(!e.isPrimary)return;swipeStart={x:e.clientX,y:e.clientY,id:e.pointerId};lightboxImage.setPointerCapture(e.pointerId);});
-lightboxImage.addEventListener('pointerup',e=>{
- if(!swipeStart||swipeStart.id!==e.pointerId)return;
- const dx=e.clientX-swipeStart.x,dy=e.clientY-swipeStart.y;swipeStart=null;
- if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.5)cyclePhoto(dx<0?1:-1);
-});
-lightboxImage.addEventListener('pointercancel',()=>{swipeStart=null;});
 const tg=window.Telegram?.WebApp,inTelegram=!!tg?.initData;
 const customer=createCustomerContact({s,t,B,A,row,box,note,small,field,esc,go,render,money,onEvent:event=>experience.notify(event)});
 const experience=createExperience({s,t,B,A,row,box,note,small,field,esc,go,render,money,staffProfiles,photoPath,customer,getRefinements:()=>refinements});
 window.PreviewToast=key=>customer.toast(key);
 const refinements=createRefinements({s,t,B,A,row,box,note,small,field,esc,money,staffProfiles,photoPath,go,render,customerPendingCount:()=>customer.pendingCount()+experience.pendingCount()});
-if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(experience.back())return;if(lightbox.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
+if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(experience.back())return;if(lightbox?.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
 splash();
 })();
