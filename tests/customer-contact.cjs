@@ -3,7 +3,7 @@ function harness(){
  const nodes=new Map(),handlers=new Map();
  function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',hidden:true,value:'',style:{},open:false,classList:{toggle(){},add(){}},focus(){this.focused=true},select(){},remove(){},removeAttribute(){},insertAdjacentHTML(_,html){this.innerHTML+=html},setAttribute(){},addEventListener(type,fn){handlers.set(id+':'+type,fn)},querySelector:el});return nodes.get(id)}
  const ctx={Intl,console,navigator:{clipboard:{writeText:async()=>{}}},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},scrollTo(){},localStorage:{getItem(){return null},setItem(){}},document:{getElementById:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{lang:'',style:{}}}};ctx.window=ctx;vm.createContext(ctx);
- for(const f of ['locales.js','refinements-locales.js','customer-locales.js','invite-demo.js','refinements.js','customer-contact.js','experience-locales.js','upgrade.js','service-finance.js','operations.js','header-outline.js','mobile9.js','design11.js','experience.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
+ for(const f of ['locales.js','refinements-locales.js','customer-locales.js','invite-demo.js','refinements.js','customer-contact.js','experience-locales.js','upgrade.js','service-finance.js','operations.js','header-outline.js','mobile9.js','design11.js','design12.js','experience.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
  vm.runInContext(fs.readFileSync('app.js','utf8').replace('splash();\n})();','globalThis.verify={s,go,customer};\n})();'),ctx);
  const {s,go,customer}=ctx.verify,button=data=>({dataset:data}),click=data=>customer.click(button(data));
  return {s,go,customer,el,ctx,click,save:(value,onboarding=false)=>{customer.input({id:'wechat-id',value});click({action:onboarding?'saveWechatOnboarding':'saveWechat'})}};
@@ -22,7 +22,7 @@ for(const lang of ['en','zh','ms','vi']){
  save('<script>bad</script>');assert(!customer.hasWechat());save('demo_customer');assert(customer.hasWechat());
  for(const page of ['request','requestReview','bookingChange','customerConflict']){go(page);assert.equal(s.page,page);assert(!el('tb-content').innerHTML.includes('<textarea'));}
  s.role='onboarding';go('wechatOnboarding');click({action:'skipWechat'});assert(customer.hasWechat());assert.equal(s.page,'wechatOnboarding');s.role='client';go('wechatEdit');save('');assert(customer.hasWechat());assert(el('contact-toast').innerHTML.includes(ctx.COPY[lang].wechatRemoveBlocked));click({action:'removeWechat'});assert(customer.hasWechat());
- el('customer-change').value='cancel';click({action:'sendCustomerChange'});assert.equal(customer.pendingCount(),1);click({action:'removeWechat'});assert(customer.hasWechat());
+ customer.currentRecord().ongoing=false;el('customer-change').value='cancel';click({action:'sendCustomerChange'});assert.equal(customer.pendingCount(),1);click({action:'removeWechat'});assert(customer.hasWechat());
  s.role='manager';go('actions');assert(el('tb-content').innerHTML.includes('uniform-actions'));assert(el('tb-nav').innerHTML.includes('nav-count'));assert(el('tb-content').innerHTML.includes('data-expand-action="booking-example-1"'));
  for(const page of ['managerBooking','managerConfirm','packageReservation','package','overrun','visit','reservedVisit','billing','serviceReview']){go(page);assert(el('tb-content').innerHTML.includes('data-contact-customer'));}
  go('spaceDetail');assert(el('tb-content').innerHTML.includes('data-contact-customer'));

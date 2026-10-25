@@ -55,3 +55,5 @@ Room-photo assets and the successful built-in image-generation prompt are in [as
 Latest UI refinements: minimized overlay selection rail (Customer and Staff), centered booking/work/finance details, two-second reservation detail entry and one-second swipe dismissal, Finance Status six-month demo chart, and grouped Earnings records. See `docs/DESIGN10_NOTES.md` for the latest refinement and standing publication approval. Run all suites with `for f in tests/*.cjs; do node "$f" || exit 1; done`.
 
 Latest shift/roster/Manager workspace refinement: [DESIGN11_NOTES.md](docs/DESIGN11_NOTES.md). Standing preview publication authorization remains in [DESIGN10_NOTES.md](docs/DESIGN10_NOTES.md).
+
+Latest booking operations, shared popup, service-call and Boss Dashboard notes: [DESIGN12_NOTES.md](docs/DESIGN12_NOTES.md).
