@@ -10,6 +10,7 @@ const ops=[
  {id:'nhi',status:'onPackage',place:'packageB',since:'22:00',minutes:60,earnings:300,packages:1},
  {id:'lina',status:'offToday',place:'',minutes:0,earnings:0,packages:0}
 ];
+staffProfiles.slice(7).forEach(p=>ops.push({id:p.id,status:'availableNow',place:'',minutes:0,earnings:0,packages:0}));
 const tables=[
  {id:'T01',status:'free',people:0},{id:'T02',status:'free',people:0},
  {id:'T03',status:'reserved',people:0,booking:'22:00'},

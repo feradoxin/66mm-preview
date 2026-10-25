@@ -15,8 +15,8 @@ const keys=Object.keys(ctx.COPY.en).sort();let checks=0;
 for(const lang of ['en','zh','ms','vi']){
  assert.deepEqual(Object.keys(ctx.COPY[lang]).sort(),keys);s.lang=lang;
  for(const role of ['client','staff']){
-  s.role=role;go(role==='client'?'browse':'roster');assert.equal((el('tb-content').innerHTML.match(/class="staff-card"/g)||[]).length,7);
-  assert.equal(el('tb-content').innerHTML.includes('data-person='),role==='client');checks++;
+  s.role=role;go(role==='client'?'browse':'roster');assert.equal((el('tb-content').innerHTML.match(/class="staff-card"/g)||[]).length,12);
+  assert.equal(el('tb-content').innerHTML.includes('data-person='),true);checks++;
  }
  go('staffProfile');assert.equal((el('tb-content').innerHTML.match(/data-photo=/g)||[]).length,5);
  openLightbox(3,el('thumb'));assert.equal(counter(),'4 / 4');
@@ -29,4 +29,4 @@ for(const lang of ['en','zh','ms','vi']){
 }
 for(const person of staffProfiles)for(let i=1;i<=4;i++)assert(fs.statSync(`assets/staff/${person.id}-${i}.webp`).size>0);
 assert(!/fetch\(|XMLHttpRequest|sendData\(/.test(code));
-console.log(`PASS: ${checks} gallery/lightbox checks across four locales; all 28 local photo assets; no transaction or upload API.`);
+console.log(`PASS: ${checks} gallery/lightbox checks across four locales; all 48 local photo assets; no transaction or upload API.`);

@@ -19,3 +19,7 @@ Subjects:
 - Lina: fictional adult East Asian woman age 28; warm fair skin, dark pixie cut, brown eyes, slim-to-average build; modest long-sleeved high-neck opaque ruby-red evening dress, small silver earrings.
 
 These assets only support UI review. They do not establish employment, availability, operational eligibility or real profile publication.
+
+## 25 October 2026 additions
+
+Soojin (Korean, 26), Yue (Chinese, 24), Thao (Vietnamese, 27), Hana (Korean, 25), Jia (Chinese, 28) add twenty photos. The seven original identities remain unchanged. See [DESIGN10_PROMPTS.md](DESIGN10_PROMPTS.md) for successful prompts and the modest eveningwear fallback. Total: twelve fictional adult profiles, 48 local photos.
