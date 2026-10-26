@@ -63,3 +63,5 @@ Latest Actions refinement: [ACTIONS13_NOTES.md](docs/ACTIONS13_NOTES.md). Manage
 Manager booking username autocomplete: [LOOKUP14_NOTES.md](docs/LOOKUP14_NOTES.md). Optional `@`, alphabetical prefix matches, four visible rows with scrolling, and tap/keyboard autofill. Validation now includes thirteen suites.
 
 Role splash/lock and on-screen PIN demo: [LOCK15_NOTES.md](docs/LOCK15_NOTES.md). Four roles, second-aligned clock, private shift tiles, and repeated PIN setup after QR authorization. Fourteen suites; no real authentication or PIN transmission.
+
+Latest lock layout/privacy and shift-arrival refinement: [SHIFT16_NOTES.md](docs/SHIFT16_NOTES.md). Customer has one Bookings status tile; Staff QR rotates every 10s; Manager check-in loops back to scanning. Both Manager camera scanners silently skip unknown QR codes. Fifteen validation suites.

@@ -23,3 +23,15 @@
 @media(max-height:640px){.lock-task{padding:3px;gap:1px}.lock-task span{font-size:7.8px}}
 
 #tbw06 .lock-primary,#tbw06 .lock-secondary,#tbw06 .lock-keypad>button{text-align:center!important;justify-content:center;align-items:center}
+
+/* Owner refinement: avatar centered 10vh higher; 40% smaller time/profile gap. */
+#tbw06 .lock-avatar{top:40%;width:20dvh!important;height:20dvh!important}
+#tbw06 .lock-time-block{top:calc(17.5dvh - 8.4px);height:12.5dvh;gap:5px}
+#tbw06 .lock-time-block time{font-size:clamp(26px,7.375vw,43.75px)}
+#tbw06 .lock-welcome{top:calc(50dvh + 10px)}
+#tbw06 .lock-task-grid{top:60dvh;max-height:18dvh}
+#tbw06 .lock-task{height:7.8dvh}
+#tbw06 .lock-task strong{text-align:center;font-size:clamp(11px,2dvh,19px);line-height:1.25}
+#tbw06 .lock-unlock-row{bottom:5dvh;gap:0}
+#tbw06.is-lock-preview #shift-checkin-overlay{display:none!important}
+@media(max-height:450px) and (orientation:landscape){#tbw06 .lock-time-block{gap:2px}#tbw06 .lock-time-block time{font-size:22px}#tbw06 .lock-welcome{top:calc(50dvh + 3px)}#tbw06 .lock-task-grid{top:63dvh}#tbw06 .lock-task{height:7dvh}#tbw06 .lock-task strong{font-size:10px}#tbw06 .lock-unlock-row .lock-primary{min-height:30px}}

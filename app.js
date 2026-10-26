@@ -116,7 +116,7 @@ function render(){
  if(p==='price')return shell(t('priceAdjustment'),fieldInput('proposedAmount','number','')+area('reason','reason',true)+note('pricePending')+A('reviewProposal','priceReview'),'package');
  if(p==='priceReview')return shell(t('reviewProposal'),note('pricePending')+B('submit','result','tb-main'),'price');
  if(p==='actions')return shell(t('actions'),box('attention',small('overrun')+B('review','overrun'))+box('pendingApprovals',B('reviewProposal','placeholder')));
- if(p==='managerManage')return shell(t('manage'),`<div class="tb-stack">${B('onboarding','inviteIssuer')}${['schedules','transfers','primaryPayroll'].map(k=>B(k,'placeholder')).join('')}${B('funds','funds')}${B('accountLanguage','account')}</div>`);
+ if(p==='managerManage')return shell(t('manage'),`<div class="tb-stack">${experience.checkin?.managerButton()||''}${B('onboarding','inviteIssuer')}${['schedules','transfers','primaryPayroll'].map(k=>B(k,'placeholder')).join('')}${B('funds','funds')}${B('accountLanguage','account')}</div>`);
  if(p==='funds')return shell(t('funds'),box('custody',row('available',money(2000))+row('held',money(0)))+box('staffLabel',row('staffLabel','Maya')+row('remainder',money(850))+small('delegated')+B(s.paid?'view':'reviewPaidOut',s.paid?'payoutResult':'payoutReview')),'managerManage');
  if(p==='overview')return shell(t('company'),`<div class="tb-tabs">${B('company','overview')}${B('venueDashboards','venueOverview')}</div>`+box('operations',small('overrun')+B('openActions','actions'))+box('pendingApprovals',B('review','actions'))+B('openPayroll','payroll'));
  if(p==='venueOverview')return shell(t('venueDashboards'),box(s.venue,row('status',t('active'))+B('openActions','actions')),'overview');
