@@ -61,3 +61,5 @@ Latest booking operations, shared popup, service-call and Boss Dashboard notes: 
 Latest Actions refinement: [ACTIONS13_NOTES.md](docs/ACTIONS13_NOTES.md). Manager and Boss inbox items open dedicated decision pages with specific labels, spaced buttons and fresh request examples. Run all twelve suites with `for f in tests/*.cjs; do node "$f" || exit 1; done`.
 
 Manager booking username autocomplete: [LOOKUP14_NOTES.md](docs/LOOKUP14_NOTES.md). Optional `@`, alphabetical prefix matches, four visible rows with scrolling, and tap/keyboard autofill. Validation now includes thirteen suites.
+
+Role splash/lock and on-screen PIN demo: [LOCK15_NOTES.md](docs/LOCK15_NOTES.md). Four roles, second-aligned clock, private shift tiles, and repeated PIN setup after QR authorization. Fourteen suites; no real authentication or PIN transmission.

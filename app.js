@@ -2,7 +2,8 @@
 const root=document.getElementById('tbw06'),content=document.getElementById('tb-content'),header=document.getElementById('tb-header'),nav=document.getElementById('tb-nav'),controls=document.getElementById('demo-controls');
 const locales={en:'English',zh:'简体中文',ms:'Bahasa Melayu',vi:'Tiếng Việt'};
 let saved='';try{saved=localStorage.getItem('66mm-preview-language')||'';}catch{}
-const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:'onboarding',page:'splash',venue:'venueA',selected:[],type:'ordinary',finance:'summary',tableFirst:true,requested:false,finalized:false,tallied:false,paid:false,released:false,freed:false,evidenceMode:'photo',image:'',imageName:'',reference:'',reading:false};
+let returningRole='';try{returningRole=localStorage.getItem('66mm-preview-role')||'';}catch{}
+const s={lang:locales[saved]?saved:'en',chosen:!!locales[saved],role:['client','staff','manager','admin'].includes(returningRole)?returningRole:'onboarding',page:'splash',venue:'venueA',selected:[],type:'ordinary',finance:'summary',tableFirst:true,requested:false,finalized:false,tallied:false,paid:false,released:false,freed:false,evidenceMode:'photo',image:'',imageName:'',reference:'',reading:false};
 const staffProfiles=[{id:'maya',name:'Maya',venue:'venueA'},{id:'lin',name:'Lin',venue:'venueA'},{id:'an',name:'An',venue:'venueA'},{id:'mei',name:'Mei',venue:'venueA'},{id:'sara',name:'Sara',venue:'venueA'},{id:'nhi',name:'Nhi',venue:'venueA'},{id:'lina',name:'Lina',venue:'venueA'},{id:'soojin',name:'Soojin',venue:'venueA'},{id:'yue',name:'Yue',venue:'venueA'},{id:'thao',name:'Thao',venue:'venueA'},{id:'hana',name:'Hana',venue:'venueA'},{id:'jia',name:'Jia',venue:'venueA'}];
 staffProfiles.forEach((p,i)=>{p.age=[24,27,22,26,25,23,28,26,24,27,25,28][i];p.dob=String(new Date().getFullYear()-p.age)+'-01-15';p.languages={en:'conversational',zh:'fluent',ms:'basic',vi:''};});
 let profileId='maya',profileReturn='browse',lightboxIndex=0,lightboxProfile=null,lightboxTrigger=null,scrollOverflow='';
@@ -40,6 +41,7 @@ function shell(title,body,back=''){
  refinements.afterRender();customer.afterRender();experience.afterRender();
 }
 function go(p){
+ if(lock?.beforeGo(p))return;
  if(customer.beforeGo(p))return;
  if(lightbox?.open)lightbox.close();
  clearTimeout(timer);clearTimeout(exitTimer);s.page=p;
@@ -59,6 +61,7 @@ function evidenceForm(){return `<h3>${t('evidence')}</h3><div class="tb-evidence
 function render(){
  renderControls();root.querySelector('.tb-phone').classList.toggle('is-splash',s.page==='splash');
  const p=s.page;
+ const lockBody=lock?.view();root.classList.toggle('is-lock-preview',!!lockBody);if(lockBody){backPage='';header.innerHTML='';nav.innerHTML='';content.innerHTML=lockBody;lock.afterRender();return;}lock?.afterRender();
  const experienceView=experience.view(p);if(experienceView)return shell(experienceView.title,experienceView.body,experienceView.back);
  const customerView=customer.view(p);if(customerView)return shell(customerView.title,customerView.body,customerView.back);
  const refined=refinements.view(p);if(refined)return shell(refined.title,refined.body,refined.back);
@@ -133,6 +136,8 @@ function render(){
 }
 function error(k){customer.toast(k);}
 root.addEventListener('click',e=>{
+ const lockButton=e.target.closest('button');if(lockButton&&lock?.click(lockButton))return;
+ if(lock?.isScreen())return;
  if(experience.outside(e.target))return;
  const b=e.target.closest('button');if(!b||b.disabled)return;
  if(b.dataset.profileBook){s.selected=[b.dataset.profileBook];s.type=b.dataset.profileKind;s.preferredDate='';s.preferredTime='';go('request');return;}
@@ -149,7 +154,7 @@ root.addEventListener('click',e=>{
  if(b.dataset.mode){s.evidenceMode=b.dataset.mode;readId++;s.reading=false;return render();}
  if(b.dataset.go)return go(b.dataset.go);
  switch(b.dataset.action){
- case 'enter':s.role='client';activeTab=0;return go('venues');
+ case 'enter':s.role='client';activeTab=0;try{localStorage.setItem('66mm-preview-role','client');}catch{}return go('venues');
  case 'submitBooking':s.requested=true;activeTab=1;return go('bookingDetail');
  case 'tables':s.tableFirst=true;return render();case 'staffFloor':s.tableFirst=false;return render();
  case 'release':s.released=true;return go('visit');case 'free':s.freed=true;return go('result');
@@ -161,6 +166,7 @@ root.addEventListener('click',e=>{
  }
 });
 root.addEventListener('keydown',e=>{
+ if(lock?.keydown(e))return;
  if(experience.keydown(e))return;
  const tab=e.target.closest('[data-booking-tab],[data-floor-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
  const items=[...tab.parentElement.querySelectorAll('[role="tab"]')],index=items.indexOf(tab);
@@ -175,7 +181,7 @@ root.addEventListener('change',e=>{
  if(el.id==='booking-type'){s.type=el.value;s.preferredDate='';s.preferredTime='';return render();}
  if(el.dataset.draft)s[el.dataset.draft]=el.value;
  if(el.id==='locale'||el.id==='account-locale')return persistLanguage(el.value);
- if(el.id==='role'){readId++;s.image='';s.imageName='';s.reference='';s.reading=false;s.evidenceMode='photo';s.role=el.value;activeTab=0;return go(s.role==='onboarding'?'language':dest[s.role][0]);}
+ if(el.id==='role'){readId++;s.image='';s.imageName='';s.reference='';s.reading=false;s.evidenceMode='photo';s.role=el.value;activeTab=0;if(lock)return lock.roleChanged();return go(s.role==='onboarding'?'language':dest[s.role][0]);}
  if(el.id==='venue'){s.venue=el.value;return render();}
  if(el.id!=='evidence-file'||!el.files?.[0])return;
  const file=el.files[0],version=++readId;
@@ -187,12 +193,14 @@ root.addEventListener('change',e=>{
  };reader.readAsDataURL(file);
 });
 window.PreviewCancelPayoutEvidenceRead=()=>{readId++;s.reading=false;};
-function splash(){clearTimeout(timer);clearTimeout(exitTimer);s.page='splash';render();timer=setTimeout(()=>{root.querySelector('.tb-splash')?.classList.add('is-leaving');exitTimer=setTimeout(()=>go(s.chosen&&s.role!=='onboarding'?dest[s.role][0]:'language'),450);},2800);}
+function splash(){if(lock&&s.role!=='onboarding'){lock.enter();return;}clearTimeout(timer);clearTimeout(exitTimer);s.page='splash';render();timer=setTimeout(()=>{root.querySelector('.tb-splash')?.classList.add('is-leaving');exitTimer=setTimeout(()=>go(s.chosen&&s.role!=='onboarding'?dest[s.role][0]:'language'),450);},2800);}
 const tg=window.Telegram?.WebApp,inTelegram=!!tg?.initData;
 const customer=createCustomerContact({s,t,B,A,row,box,note,small,field,esc,go,render,money,onEvent:event=>experience.notify(event)});
 const experience=createExperience({s,t,B,A,row,box,note,small,field,esc,go,render,money,staffProfiles,photoPath,customer,getRefinements:()=>refinements});
 window.PreviewToast=key=>customer.toast(key);
 const refinements=createRefinements({s,t,B,A,row,box,note,small,field,esc,money,staffProfiles,photoPath,go,render,customerPendingCount:()=>customer.pendingCount()+experience.pendingCount()});
+const lock=window.createLockScreenPreview?.({s,t,esc,money,render,go,experience,customer,staffProfiles,photoPath,getRefinements:()=>refinements,logo});
+window.PreviewLock=lock;
 if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(experience.back())return;if(lightbox?.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
 splash();
 })();
