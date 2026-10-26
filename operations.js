@@ -26,7 +26,7 @@ window.createOperationsPreview=({s,t,B,A,esc,field,box,row,small,render,go,money
  const priceReviews=[{id:'price-lin',staffId:'soojin',bookingRef:'action-package',original:1288,proposed:1188,state:'pending',requestedAt:Date.now()-75*60000,reasonKey:'priceSampleReason',role:'admin'}];
  const cutoff=()=>{const d=new Date();d.setMonth(d.getMonth()-3);return d.getTime();};
  const actor=()=>s.role==='admin'?'Victor Wong':'Daniel Tan';
- const canSee=x=>x&&x.role===s.role;
+ const canSee=x=>x&&x.role===s.role&&(x.kind!=='service12'||x.venue===s.venue);
  const readOnly=html=>html.replace(/<button\b[\s\S]*?<\/button>/g,'').replace(/<label\b[\s\S]*?<\/label>/g,'');
  const actionButtons=html=>`<div class="action-decision-buttons">${html}</div>`;
  const reasonField=id=>field('decisionReason',`<textarea id="action-note-${id}" maxlength="1000" rows="3"></textarea>`);
