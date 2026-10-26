@@ -35,3 +35,9 @@ Use first day 18:00 to next first day 18:00 MYT; day-10 00:00 correction cutoff 
 5. Update iteration notes/README and future handoff with actual final SHA/tree/Pages and QA evidence. Do not rewrite older historical docs into current source.
 
 No owner reapproval is needed for routine continuation of these requested preview changes. Continue from the saved feature branch; keep main unchanged until all remaining checks are complete.
+
+## Step 2 follow-up — 26 October 2026
+
+Payroll guard and screen review completed for this bounded step. Fixed stored Manager receipt confirmation, duplicate/unknown command refusal, report scope and available-version validation/dropdown, failed-only retry parent validation, Manager identity and complete financial snapshot revalidation, direct Boss payment after a released Manager intent (no custody debit), and historical version display. Confirmation reviews now display Manager evidence/funds and recovery before/amount/after. Added model and four-locale form regressions; all 18 suites pass locally.
+
+Next step remains independent-checkout and browser/device-layout acceptance, then checked publication. Reference-based evidence and report-request-only limitations remain as described above. No main or Pages change was made for this checkpoint. Resume from the latest checkpoint/payroll19-staged branch head, not its original commit.
