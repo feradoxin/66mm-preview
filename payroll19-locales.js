@@ -1,5 +1,25 @@
 /* Payroll preview copy: all app-controlled controls have four locales. */
 (()=>{const lines=`
+month20View|View This Month|查看本月|Lihat Bulan Ini|Xem tháng này
+month20Title|This Month’s Transactions|本月财务明细|Transaksi Bulan Ini|Giao dịch tháng này
+month20Help|Simulated records, from the first day of this calendar month to now (Malaysia time). Each row is one transaction type. Sales and Staff earnings are separate entries, not a net-profit total. Pending requests and live estimates are excluded. Staff shares use the preview’s 60% rate.|模拟记录，涵盖本自然月1日至今（马来西亚时间）。每行仅列一种财务事项。销售收入与员工工资分别列示，不代表净利润合计。不含待处理申请及进行中的估算金额。员工工资按预览版60%的比例计算。|Rekod simulasi dari 1hb bulan kalendar ini hingga kini (waktu Malaysia). Setiap baris ialah satu jenis transaksi. Jualan dan pendapatan Staf disenaraikan berasingan, bukan jumlah untung bersih. Permohonan belum selesai dan anggaran semasa dikecualikan. Bahagian Staf menggunakan kadar pratonton 60%.|Dữ liệu mô phỏng từ ngày đầu tháng dương lịch đến hiện tại (giờ Malaysia). Mỗi dòng là một loại giao dịch. Doanh thu và thu nhập Nhân viên được ghi riêng, không phải tổng lợi nhuận ròng. Không gồm yêu cầu đang chờ và số tiền ước tính của dịch vụ đang diễn ra. Phần Nhân viên tính theo tỷ lệ 60% của bản xem trước.
+month20Oldest|Earliest First|时间由早到晚|Paling Awal Dahulu|Từ cũ đến mới
+month20Empty|No recorded transactions this month yet.|本月至今暂无已记录的财务事项。|Belum ada transaksi direkodkan bulan ini.|Chưa có giao dịch được ghi nhận trong tháng này.
+month20ServiceSales|Service Sales|服务销售收入|Jualan Perkhidmatan|Doanh thu dịch vụ
+month20StaffEarnings|Staff Earnings|员工工资收入|Pendapatan Staf|Thu nhập Nhân viên
+month20RoomEarnings|Room Earnings|包厢收入|Pendapatan Bilik|Doanh thu phòng
+month20TableEarnings|Table Earnings|桌位收入|Pendapatan Meja|Doanh thu bàn
+month20CashAdvance|Cash Advancement|现金预支|Pendahuluan Tunai|Ứng tiền mặt
+month20FundsAdvance|Manager Funds Advanced|拨付经理托管款|Dana Diserahkan kepada Pengurus|Giao quỹ cho Quản lý
+month20FundsReturn|Manager Funds Returned|经理退回托管款|Dana Dipulangkan oleh Pengurus|Quản lý hoàn trả quỹ
+month20OutstandingIncrease|Outstanding Increased|员工欠款增加|Hutang Staf Bertambah|Tăng dư nợ
+month20OutstandingDecrease|Outstanding Reduced|员工欠款减少|Hutang Staf Berkurang|Giảm dư nợ
+month20WagePayout|Wages Paid Out|工资发放|Gaji Dibayar|Chi trả lương
+month20Tally|Wages Applied to Outstanding|工资抵扣欠款|Gaji Ditolak daripada Hutang|Đối trừ lương vào dư nợ
+month20WageCorrection|Wage Correction|工资更正|Pembetulan Gaji|Điều chỉnh lương
+month20TallyRestored|Tally Reversal|冲回工资抵扣|Pembalikan Tolakan|Hoàn lại khoản đối trừ
+month20Repayment|Recovery Repaid|追偿款归还|Bayaran Balik Pemulihan|Hoàn trả khoản phải thu hồi
+month20WriteOff|Recovery Written Off|追偿款核销|Hapus Kira Pemulihan|Xóa khoản phải thu hồi
 payWorkspace|Payroll|薪资|Gaji|Bảng lương
 payDemo|Simulated records only. No money is transferred and no document is delivered.|仅模拟记录，不转账或发送文件。|Rekod simulasi sahaja. Tiada pemindahan wang atau penghantaran dokumen.|Chỉ mô phỏng hồ sơ. Không chuyển tiền hay gửi tài liệu.
 payFinalize|Finalize|结算定稿|Muktamadkan|Chốt lương

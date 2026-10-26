@@ -1,6 +1,6 @@
 /* Presentation-only reservation, profile and staff dashboard demo. No external operations. */
 window.createExperience=({s,t,B,A,row,box,note,small,field,esc,go,render,money,staffProfiles,photoPath,customer,getRefinements=()=>null})=>{
- const payroll=window.createPayrollPreview19?.({s,t,esc,row,box,small,field,render,go,customer});
+ const payroll=window.createPayrollPreview19?.({s,t,esc,row,box,small,field,render,go,customer,getFinancialSources:()=>({bookings:design11.allBookings(),...operations.services.financialSources()}),staffProfiles});
  const profiles={client:{nickname:'',photo:'',whatsapp:''},staff:{nickname:'Maya',photo:'assets/staff/maya-1.webp?v=experience4',whatsapp:''},manager:{nickname:'Daniel Tan',photo:'',whatsapp:''},admin:{nickname:'Victor Wong',photo:'',whatsapp:''},onboarding:{nickname:'',photo:'',whatsapp:''}};
  const overlay=()=>document.getElementById('experience-overlay');
  let draft=null,stage='',roomPhoto=0,roomEnlarged=false,photoVersion=0,boardMonth=0,boardBasis='earned',returnFocus=null,closing=false,sheetCloseTimer=null,sheetGesture=null;
