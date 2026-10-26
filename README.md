@@ -67,3 +67,5 @@ Role splash/lock and on-screen PIN demo: [LOCK15_NOTES.md](docs/LOCK15_NOTES.md)
 Latest lock layout/privacy and shift-arrival refinement: [SHIFT16_NOTES.md](docs/SHIFT16_NOTES.md). Customer has one Bookings status tile; Staff QR rotates every 10s; Manager check-in loops back to scanning. Both Manager camera scanners silently skip unknown QR codes. Fifteen validation suites.
 
 Latest roster/service-call and animation refinement: [SERVICE17_NOTES.md](docs/SERVICE17_NOTES.md). Availability is independent of arrival; unavailable roster photos use 50% desaturation and profile photos retain colour. Customer/currently assigned Staff service calls require an active table/room and explicit confirmation, without WeChat. Popups share symmetric two-second motion; lock segment timing is halved. Seventeen suites, including shared popup lifecycle coverage.
+
+Latest popup geometry/timing and toast placement: [POPUP18_NOTES.md](docs/POPUP18_NOTES.md). Popup open 200ms / close 125ms, viewport side gaps 2.5vw, toast lower edge 50px above the measured footer. Supersedes the earlier two-second popup rule.
