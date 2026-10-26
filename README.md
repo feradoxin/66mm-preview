@@ -74,4 +74,6 @@ Latest Boss Payroll and shared UI work: [PAYROLL19_NOTES.md](docs/PAYROLL19_NOTE
 
 Boss Payroll month-to-date transactions: [MONTH20_NOTES.md](docs/MONTH20_NOTES.md). View This Month is first below the header and opens a scrolling, oldest-first current-calendar-month list across venues. Separate rows retain booking/package Staff earnings, service/room sales, disbursed cash advances and committed payroll financial changes. Four locales;19 suites. Read-only simulated sources; no real posting or transfer.
 
-Transparent splash candidate: [splash-preview.html](splash-preview.html), with Replay Loading and four locales. This is an isolated review page; the current app/onboarding/role splash logos remain unchanged pending owner approval. See [SPLASH21_REVIEW.md](docs/SPLASH21_REVIEW.md).
+Approved transparent splash preview: [splash-preview.html](splash-preview.html), with Replay Loading and four locales. Owner approved rollout: onboarding and all four role splash screens now use this transparent logo and logo-masked sweep. Header/language-page logo uses remain separate. See [SPLASH21_REVIEW.md](docs/SPLASH21_REVIEW.md).
+
+Splash rollout details: [SPLASH22_NOTES.md](docs/SPLASH22_NOTES.md). Current cache version splash22;19 suites retained.

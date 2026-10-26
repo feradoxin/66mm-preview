@@ -28,6 +28,7 @@ const field=(key,html)=>`<label class="tb-field">${t(key)}${html}</label>`;
 const fieldInput=(key,type,value='',id=key)=>field(key,`<input id="${id}" data-draft="${id}" type="${type}" value="${esc(s[id]||value)}">`);
 const area=(key,id,required=false)=>field(key,`<textarea id="${id}" data-draft="${id}" rows="3" ${required?'required':''}>${esc(s[id]||'')}</textarea>`);
 const logo='<img src="logo.webp" alt="66MM" width="1774" height="887">';
+const splashLogo='<img src="assets/branding/logo-transparent-candidate21.png" alt="66MM" width="1774" height="887">';
 function persistLanguage(k){s.lang=k;s.chosen=true;try{localStorage.setItem('66mm-preview-language',k);}catch{}render();}
 function renderControls(){controls.innerHTML=`<span class="demo-label">${t('preview')}</span><label>${t('language')}<select id="locale">${Object.entries(locales).map(([k,v])=>`<option value="${k}" ${k===s.lang?'selected':''}>${v}</option>`).join('')}</select></label><label>${t('role')}<select id="role">${['onboarding','client','staff','manager','admin'].map(k=>`<option value="${k}" ${s.role===k?'selected':''}>${t(k)}</option>`).join('')}</select></label>`;}
 function shell(title,body,back=''){
@@ -65,7 +66,7 @@ function render(){
  const experienceView=experience.view(p);if(experienceView)return shell(experienceView.title,experienceView.body,experienceView.back);
  const customerView=customer.view(p);if(customerView)return shell(customerView.title,customerView.body,customerView.back);
  const refined=refinements.view(p);if(refined)return shell(refined.title,refined.body,refined.back);
- if(p==='splash'){backPage='';header.innerHTML='';nav.innerHTML='';content.innerHTML=`<div class="tb-splash is-playing"><div class="tb-logo-reveal">${logo}</div><div class="tb-loading-detail"><div class="tb-loader" aria-hidden="true"><span></span></div><div class="tb-splash-label" role="status">${t('loadingLabel')}</div></div></div>`;return;}
+ if(p==='splash'){backPage='';header.innerHTML='';nav.innerHTML='';content.innerHTML=`<div class="tb-splash is-playing"><div class="tb-logo-reveal">${splashLogo}</div><div class="tb-loading-detail"><div class="tb-loader" aria-hidden="true"><span></span></div><div class="tb-splash-label" role="status">${t('loadingLabel')}</div></div></div>`;return;}
  if(p==='language')return shell(t('chooseLanguage'),`<div class="tb-language-logo">${logo}</div><div class="tb-stack">${Object.entries(locales).map(([k,v])=>`<button type="button" data-language="${k}" aria-pressed="${s.chosen&&s.lang===k}">${v}${s.chosen&&s.lang===k?' ✓':''}</button>`).join('')}</div><button class="tb-main" type="button" data-go="invite" ${s.chosen?'':'disabled'}>${t('continue')}</button>`+small('safePreview'));
  if(p==='invite')return shell(t('invitation'),box('invitationVerified',row('venue',t('venueA'))+row('telegramIdentity',t('exampleUser')))+note('clientEnrollment')+B('continue','enrolled','tb-main'),'language');
  if(p==='enrolled')return shell(t('ready'),box('yourAccount',row('role',t('client'))+row('language',locales[s.lang]))+A('exploreVenues','enter'),'invite');
@@ -199,7 +200,7 @@ const customer=createCustomerContact({s,t,B,A,row,box,note,small,field,esc,go,re
 const experience=createExperience({s,t,B,A,row,box,note,small,field,esc,go,render,money,staffProfiles,photoPath,customer,getRefinements:()=>refinements});
 window.PreviewToast=key=>customer.toast(key);
 const refinements=createRefinements({s,t,B,A,row,box,note,small,field,esc,money,staffProfiles,photoPath,go,render,customerPendingCount:()=>customer.pendingCount()+experience.pendingCount()});
-const lock=window.createLockScreenPreview?.({s,t,esc,money,render,go,experience,customer,staffProfiles,photoPath,getRefinements:()=>refinements,logo});
+const lock=window.createLockScreenPreview?.({s,t,esc,money,render,go,experience,customer,staffProfiles,photoPath,getRefinements:()=>refinements,logo:splashLogo});
 window.PreviewLock=lock;
 if(tg&&inTelegram){try{tg.ready();tg.expand();if(tg.isVersionAtLeast('6.1')){tg.setHeaderColor('#040b17');tg.setBackgroundColor('#040b17');}tg.BackButton.onClick(()=>{if(experience.back())return;if(lightbox?.open)lightbox.close();else if(backPage)go(backPage);});}catch{}}
 splash();
