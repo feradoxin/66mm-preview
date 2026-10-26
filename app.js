@@ -47,7 +47,7 @@ function go(p){
  const i=groups[s.role]?.findIndex(g=>g.includes(p));if(i>=0)activeTab=i;
  if(p==='staffProfile')activeTab=s.role==='client'?0:1;
  if(['spaceDetail','opsStaffDetail'].includes(p))activeTab=0;
- if(p==='actionDetail')activeTab=2;
+ if(p==='actionDetail'||p==='inboxDetail')activeTab=s.role==='admin'?1:2;
  if(p==='inviteIssuer')activeTab=3;
  render();window.scrollTo({top:0,behavior:'instant'});
 }

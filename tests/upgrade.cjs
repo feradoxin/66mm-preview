@@ -11,14 +11,14 @@ for(const lang of ['en','zh','ms','vi']){
  const {s,go,experience:x,customer,ctx,el,advance}=harness();const click=data=>x.click({dataset:data});
  s.lang=lang;s.role='staff';go('staffHome');assert(!el('tb-content').innerHTML.includes('staff-unread'));assert(!el('tb-content').innerHTML.includes('data-experience="clockOut"'));assert(el('tb-header').innerHTML.includes('notification-bell'));assert(el('tb-content').innerHTML.includes('MYR'));
  // A manager must mark in the package before the staff member can clock out.
- click({packageClock:'package-demo-a'});assert.equal(x.pendingCount(),1);
+ click({packageClock:'package-demo-a'});assert.equal(x.pendingCount(),3);
  s.role='manager';go('managerManage');el('start-package-demo-a').value='2026-10-24T18:01';click({packageStart:'package-demo-a'});assert(el('contact-toast').innerHTML.includes(ctx.COPY[lang].invalidPackageStart));
  el('start-package-demo-a').value='2026-10-24T18:00';click({packageStart:'package-demo-a'});
  s.role='client';go('updates');assert(el('tb-content').innerHTML.includes(ctx.COPY[lang].packageStartNotice));
  s.role='staff';go('staffHome');click({staffWork:'package-demo-a'});assert(el('mobile9-overlay').innerHTML.includes('data-package-clock="package-demo-a"'));click({mobile:'close'});
  click({upgrade:'notifications'});assert(el('upgrade-overlay').innerHTML.includes(ctx.COPY[lang].needsResponse));const unread=x.unreadCount();click({experience:'markReadSafe'});assert.equal(x.unreadCount(),unread);click({upgrade:'closeNotice'});
- advance(8*3600000);click({packageClock:'package-demo-a'});click({packageClock:'package-demo-a'});assert.equal(x.pendingCount(),2);
- s.role='manager';go('actions');assert(!el('tb-content').innerHTML.includes(ctx.COPY[lang].packageOverEight));click({expandAction:'package-package-demo-a'});assert(el('tb-content').innerHTML.includes('data-package-ack="package-demo-a"'));click({packageAck:'package-demo-a'});assert.equal(x.pendingCount(),1);
+ advance(8*3600000);click({packageClock:'package-demo-a'});click({packageClock:'package-demo-a'});assert.equal(x.pendingCount(),4);
+ s.role='manager';go('actions');assert(!el('tb-content').innerHTML.includes(ctx.COPY[lang].packageOverEight));click({expandAction:'package-package-demo-a'});assert(el('tb-content').innerHTML.includes('data-package-ack="package-demo-a"'));click({packageAck:'package-demo-a'});assert.equal(x.pendingCount(),3);
  go('managerManage');el('start-package-demo-b').value='2026-10-25T02:00';click({packageStart:'package-demo-b'});
  s.role='staff';go('staffHome');advance(8*3600000+1);click({packageClock:'package-demo-b'});
  s.role='manager';go('actions');click({expandAction:'package-package-demo-b'});assert(el('tb-content').innerHTML.includes(ctx.COPY[lang].packageOverEight));assert(!el('tb-header').innerHTML.includes('notification-bell'));assert(el('tb-nav').innerHTML.includes('nav-count'));const n=x.unreadCount();click({experience:'markReadSafe'});assert.equal(x.unreadCount(),n);click({upgrade:'closeNotice'});

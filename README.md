@@ -57,3 +57,7 @@ Latest UI refinements: minimized overlay selection rail (Customer and Staff), ce
 Latest shift/roster/Manager workspace refinement: [DESIGN11_NOTES.md](docs/DESIGN11_NOTES.md). Standing preview publication authorization remains in [DESIGN10_NOTES.md](docs/DESIGN10_NOTES.md).
 
 Latest booking operations, shared popup, service-call and Boss Dashboard notes: [DESIGN12_NOTES.md](docs/DESIGN12_NOTES.md).
+
+Latest Actions refinement: [ACTIONS13_NOTES.md](docs/ACTIONS13_NOTES.md). Manager and Boss inbox items open dedicated decision pages with specific labels, spaced buttons and fresh request examples. Run all twelve suites with `for f in tests/*.cjs; do node "$f" || exit 1; done`.
+
+Manager booking username autocomplete: [LOOKUP14_NOTES.md](docs/LOOKUP14_NOTES.md). Optional `@`, alphabetical prefix matches, four visible rows with scrolling, and tap/keyboard autofill. Validation now includes thirteen suites.
