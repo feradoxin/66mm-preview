@@ -21,3 +21,5 @@
 #tbw06.is-lock-preview #contact-toast,#tbw06.is-lock-preview #experience-overlay,#tbw06.is-lock-preview #upgrade-overlay,#tbw06.is-lock-preview #operations-overlay,#tbw06.is-lock-preview #service-finance-overlay,#tbw06.is-lock-preview #mobile9-overlay,#tbw06.is-lock-preview #design11-overlay,#tbw06.is-lock-preview #design12-overlay{display:none!important}
 .lock-task span{max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 @media(max-height:640px){.lock-task{padding:3px;gap:1px}.lock-task span{font-size:7.8px}}
+
+#tbw06 .lock-primary,#tbw06 .lock-secondary,#tbw06 .lock-keypad>button{text-align:center!important;justify-content:center;align-items:center}
