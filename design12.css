@@ -4,3 +4,8 @@
 /* All current/future popup surfaces use popup-motion.js, including removed-dialog exits. */
 #tbw06 [role="dialog"],#tbw06 dialog,#tbw06 .app-popup{animation:none!important}
 #popup-motion-ghosts{pointer-events:none!important}#tbw06.is-lock-preview #popup-motion-ghosts{display:none!important}
+
+/* Standard popup scrolling and close controls, including long translated content. */
+#tbw06 [role="dialog"],#tbw06 dialog,#tbw06 .app-popup{min-height:0!important;height:auto!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;overflow-wrap:anywhere}
+#tbw06 .popup-close19{flex:0 0 44px!important;width:44px!important;height:44px!important;min-height:44px!important;min-width:44px!important;padding:0!important;display:inline-flex!important;align-items:center;justify-content:center;text-align:center!important;line-height:1!important}
+#tbw06 [role="dialog"] header{gap:12px}#tbw06 [role="dialog"] header h2{min-width:0;overflow-wrap:anywhere}#tbw06 [role="dialog"] input,#tbw06 [role="dialog"] select,#tbw06 [role="dialog"] textarea{box-sizing:border-box}

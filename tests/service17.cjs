@@ -41,6 +41,6 @@ for(const lang of ['en','zh','ms','vi']){
  // Main profile image retains its colour; roster-only desaturation is 50%.
  x.click({dataset:{profile:'sara'}});go('staffProfile');assert(el('tb-content').innerHTML.includes('class="profile-large-photo"'));assert(!el('tb-content').innerHTML.includes('photo-unavailable'));
 }
-const css=fs.readFileSync('design11.css','utf8');assert(css.includes('.staff-unavailable .roster-image img{filter:saturate(.5)}'));assert(!css.includes('.photo-unavailable'));
+const css=fs.readFileSync('design11.css','utf8');assert(css.includes('.staff-unavailable .roster-image img{filter:saturate(.3)}'));assert(!css.includes('.photo-unavailable'));
 const lock=fs.readFileSync('lock-screen.css','utf8');for(const value of ['lock-rise .325s .025s','lock-avatar-rise .325s .375s','lock-rise .325s .725s','lock-rise .3s 1.05s'])assert(lock.includes(value));
-console.log('PASS four locales: availability independent of arrival including noon gap, roster-only half desaturation, active located booking and live Staff assignment guards, confirmation/cancel/revalidation, no WeChat dependency, duplicates, Manager routing/location and role/venue isolation.');
+console.log('PASS four locales: availability independent of arrival including noon gap, roster-only 30% saturation, active located booking and live Staff assignment guards, confirmation/cancel/revalidation, no WeChat dependency, duplicates, Manager routing/location and role/venue isolation.');

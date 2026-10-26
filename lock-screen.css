@@ -35,3 +35,5 @@
 #tbw06 .lock-unlock-row{bottom:5dvh;gap:0}
 #tbw06.is-lock-preview #shift-checkin-overlay{display:none!important}
 @media(max-height:450px) and (orientation:landscape){#tbw06 .lock-time-block{gap:2px}#tbw06 .lock-time-block time{font-size:22px}#tbw06 .lock-welcome{top:calc(50dvh + 3px)}#tbw06 .lock-task-grid{top:63dvh}#tbw06 .lock-task{height:7dvh}#tbw06 .lock-task strong{font-size:10px}#tbw06 .lock-unlock-row .lock-primary{min-height:30px}}
+
+#tbw06 .lock-customer-booking{height:auto;min-height:7.8dvh;max-height:18dvh;overflow:auto;padding:8px}#tbw06 .lock-customer-booking strong{white-space:pre-line;font-size:clamp(11px,1.8dvh,17px)}
